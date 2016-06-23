@@ -5,7 +5,6 @@ import pandas as pd
 import time
 from sklearn.preprocessing import LabelEncoder
 from sklearn import preprocessing as pp
-from common.tools import print_type
 
 from sklearn.ensemble import RandomForestClassifier, BaggingClassifier
 # from sknn.mlp import Classifier, Layer, Native
@@ -80,9 +79,7 @@ def process_one_cell(df_cell_train, df_cell_test, fw, th):
 
     clf_list = [clf_bagging_knn, clf_rf]
     weight = [lr(0.64), lr(0.65)]
-    # print_type(len(df_cell_test.place_id.value_counts()))
-    # exit()
-    # y_pred_all = np.zeros((X_test.shape[0], len(df_cell_test.place_id.value_counts())))
+    
     y_pred_all = []
 
     for ci, cl in enumerate(clf_list):
