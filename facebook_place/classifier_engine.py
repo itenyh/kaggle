@@ -109,7 +109,7 @@ def process_grid(df_train, df_test, size, x_step, y_step, x_border_augment, y_bo
 
             # run_time += 1
 
-            r_state = 1
+            r_state = 0
             #Applying classifier to one grid cell
             # clf_knn = KNeighborsClassifier(n_neighbors=26, weights='distance',
             #                    metric='manhattan', n_jobs = -1)

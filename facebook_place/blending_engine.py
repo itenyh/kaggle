@@ -29,4 +29,4 @@ def vlidate_by_model(model):
     print fb_validate3(df, all)
 
 
-vlidate_by_model('model/knn-26-base.csv')
+vlidate_by_model('model/rf-base.csv')

@@ -60,22 +60,22 @@ def process_one_cell(df_cell_train, df_cell_test, fw, th):
 
     #Applying the classifier
 
-    r_state = 1
+    r_state = 0
 
     clf_knn = KNeighborsClassifier(n_neighbors=26, weights='distance',
                                metric='manhattan', n_jobs = -1)
-    clf_bagging_knn = BaggingClassifier(clf_knn, n_jobs=-1, n_estimators=50, random_state=r_state)
-
-    clf_rf = RandomForestClassifier(n_estimators=200, n_jobs=-1, random_state=r_state)
+    # clf_bagging_knn = BaggingClassifier(clf_knn, n_jobs=-1, n_estimators=50, random_state=r_state)
+    #
+    # clf_rf = RandomForestClassifier(n_estimators=200, n_jobs=-1, random_state=r_state)
 
     # clf_gbc = GradientBoostingClassifier(n_estimators=10,  random_state=r_state)
 
     # clf_nn = Classifier(layers=[Layer('Tanh', units=50), Layer("Softmax")], learning_rate=0.01, n_iter = 125, random_state=r_state)
-    num_round = 2
+    # num_round = 2
     # param = {'max_depth':2, 'eta':1, 'silent':1, 'objective':'binary:logistic' }
     # bst = xgb.train(param, ,label = y)
 
-    clf_list = [clf_rf]
+    clf_list = [clf_knn]
     weight = [lr(0.64), lr(0.65)]
 
     y_pred_all = []
@@ -160,7 +160,7 @@ def process_grid(df_train, df_test, size, x_step, y_step, x_border_augment, y_bo
     print fb_validate1(preds, df_test)
     print 'Finish!'
 
-    '''
+
     print('Generating submission file ...')
     #Auxiliary dataframe with the 3 best predictions for each sample
     df_aux = pd.DataFrame(preds, dtype=str, columns=['l1', 'l2', 'l3'])
@@ -170,8 +170,8 @@ def process_grid(df_train, df_test, size, x_step, y_step, x_border_augment, y_bo
 
     #Writting to csv
     ds_sub.name = 'place_id'
-    ds_sub.to_csv('sub_knn_pp.csv', index=True, header=True, index_label='row_id')
-    '''
+    ds_sub.to_csv('sub_knn-season_pp.csv', index=True, header=True, index_label='row_id')
+
 
 ##########################################################
 # Main
@@ -190,20 +190,20 @@ if __name__ == '__main__':
     y_border_augment = 0.025
 
     print('Loading data ...')
-    # df_train = pd.read_csv('data/train.csv',
-    #                        usecols=['row_id','x','y','time','place_id','accuracy'],
-    #                        index_col = 0)
-    # df_test = pd.read_csv('data/test.csv',
-    #                       usecols=['row_id','x','y','time','accuracy'],
-    #                       index_col = 0)
-
-    all = pd.read_table('data/ninegrid_xy.txt', sep = ',', names = ['row_id', 'x', 'y',  'accuracy', 'time', 'place_id'],
-                    usecols=['row_id', 'x', 'y', 'accuracy','time', 'place_id'], index_col = 0)
-
-    N = len(all)
-    df_train = all.iloc[int(0.2 * N):]
-    df_test = all.iloc[:int(0.2 * N)]
-    validate = True
+    df_train = pd.read_csv('data/train.csv',
+                           usecols=['row_id','x','y','time','place_id','accuracy'],
+                           index_col = 0)
+    df_test = pd.read_csv('data/test.csv',
+                          usecols=['row_id','x','y','time','accuracy'],
+                          index_col = 0)
+    #
+    # all = pd.read_table('data/ninegrid_xy.txt', sep = ',', names = ['row_id', 'x', 'y',  'accuracy', 'time', 'place_id'],
+    #                 usecols=['row_id', 'x', 'y', 'accuracy','time', 'place_id'], index_col = 0)
+    #
+    # N = len(all)
+    # df_train = all.iloc[int(0.2 * N):]
+    # df_test = all.iloc[:int(0.2 * N)]
+    # validate = True
                           
     #Feature engineering
     
@@ -212,7 +212,7 @@ if __name__ == '__main__':
     df_train['hour'] = df_train['time']//60
     df_train['weekday'] = df_train['hour']//24
     df_train['month'] = df_train['weekday']//30
-    # df_train['season'] = (df_train['month'] + 2)//3 % 4
+    df_train['season'] = (df_train['month'] + 2)//3 % 4
     df_train['year'] = (df_train['weekday']//365+1)*fw[5]
 
     df_train['hour'] = ((df_train['hour']%24+1)+minute/60.0)
@@ -236,7 +236,7 @@ if __name__ == '__main__':
     df_test['hour'] = df_test['time']//60
     df_test['weekday'] = df_test['hour']//24
     df_test['month'] = df_test['weekday']//30
-    # df_test['season'] = (df_test['month'] + 2)//3 % 4
+    df_test['season'] = (df_test['month'] + 2)//3 % 4
     df_test['year'] = (df_test['weekday']//365+1)*fw[5]
     df_test['hour'] = ((df_test['hour']%24+1)+minute/60.0)*fw[2]
     df_test['weekday'] = (df_test['weekday']%7+1)*fw[3]
