@@ -6,7 +6,7 @@ import time
 from sklearn.preprocessing import LabelEncoder
 from sklearn import preprocessing as pp
 
-from sklearn.ensemble import RandomForestClassifier, BaggingClassifier
+from sklearn.ensemble import RandomForestClassifier, BaggingClassifier, GradientBoostingClassifier
 # from sknn.mlp import Classifier, Layer, Native
 # from lasagne import layers as lasagne, nonlinearities as nl
 from sklearn.neighbors import KNeighborsClassifier
@@ -72,12 +72,14 @@ def process_one_cell(df_cell_train, df_cell_test, fw, th):
 
     clf_rf = RandomForestClassifier(n_estimators=200, n_jobs=-1, random_state=r_state)
 
+    clf_gbc = GradientBoostingClassifier(n_estimators=100,  random_state=r_state)
+
     # clf_nn = Classifier(layers=[Layer('Tanh', units=50), Layer("Softmax")], learning_rate=0.01, n_iter = 125, random_state=r_state)
     num_round = 2
     # param = {'max_depth':2, 'eta':1, 'silent':1, 'objective':'binary:logistic' }
     # bst = xgb.train(param, ,label = y)
 
-    clf_list = [clf_bagging_knn]
+    clf_list = [clf_gbc]
     weight = [lr(0.64), lr(0.65)]
 
     y_pred_all = []
