@@ -212,7 +212,7 @@ if __name__ == '__main__':
     df_train['hour'] = df_train['time']//60
     df_train['weekday'] = df_train['hour']//24
     df_train['month'] = df_train['weekday']//30
-    df_train['season'] = (df_train['month'] + 2)//3 % 4
+    # df_train['season'] = (df_train['month'] + 2)//3 % 4
     df_train['year'] = (df_train['weekday']//365+1)*fw[5]
 
     df_train['hour'] = ((df_train['hour']%24+1)+minute/60.0)
@@ -236,7 +236,7 @@ if __name__ == '__main__':
     df_test['hour'] = df_test['time']//60
     df_test['weekday'] = df_test['hour']//24
     df_test['month'] = df_test['weekday']//30
-    df_test['season'] = (df_test['month'] + 2)//3 % 4
+    # df_test['season'] = (df_test['month'] + 2)//3 % 4
     df_test['year'] = (df_test['weekday']//365+1)*fw[5]
     df_test['hour'] = ((df_test['hour']%24+1)+minute/60.0)*fw[2]
     df_test['weekday'] = (df_test['weekday']%7+1)*fw[3]
@@ -250,13 +250,13 @@ if __name__ == '__main__':
     # exit()
 
     # add data for periodic time that hit the boundary
-    add_data = df_train[df_train.hour<6]
-    add_data.hour = add_data.hour + 24 * fw[2]
-    df_train = df_train.append(add_data)
-
-    add_data = df_train[df_train.hour>98]
-    add_data.hour = add_data.hour - 24 * fw[2]
-    df_train = df_train.append(add_data)
+    # add_data = df_train[df_train.hour<6]
+    # add_data.hour = add_data.hour + 24 * fw[2]
+    # df_train = df_train.append(add_data)
+    #
+    # add_data = df_train[df_train.hour>98]
+    # add_data.hour = add_data.hour - 24 * fw[2]
+    # df_train = df_train.append(add_data)
 
     print('Solving')
     #Solving classification problems inside each grid cell 
