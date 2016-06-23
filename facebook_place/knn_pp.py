@@ -157,7 +157,7 @@ def process_grid(df_train, df_test, size, x_step, y_step, x_border_augment, y_bo
 
     print("process time: %.2f seconds" % (time.time() - process_time))
 
-    print fb_validate1(preds, df_test)
+    # print fb_validate1(preds, df_test)
     print 'Finish!'
 
 
