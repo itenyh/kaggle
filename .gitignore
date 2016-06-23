@@ -1,3 +1,4 @@
-facebook_place/data/*
+#facebook_place/data/*
 facebook_place/rabbish/*
 facebook_place/submission/*
+.idea/*
