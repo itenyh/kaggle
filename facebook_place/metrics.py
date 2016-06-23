@@ -2,7 +2,7 @@
 
 import numpy as np
 import pandas as pd
-from common.tools import *
+# from common.tools import *
 
 def apk(actual, predicted, k=10):
     """

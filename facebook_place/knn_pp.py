@@ -79,7 +79,7 @@ def process_one_cell(df_cell_train, df_cell_test, fw, th):
 
     clf_list = [clf_bagging_knn, clf_rf]
     weight = [lr(0.64), lr(0.65)]
-    
+
     y_pred_all = []
 
     for ci, cl in enumerate(clf_list):
