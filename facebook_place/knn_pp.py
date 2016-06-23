@@ -80,7 +80,7 @@ def process_one_cell(df_cell_train, df_cell_test, fw, th):
     # param = {'max_depth':2, 'eta':1, 'silent':1, 'objective':'binary:logistic' }
     # bst = xgb.train(param, ,label = y)
 
-    clf_list = [clf_bagging_knn, clf_rf]
+    clf_list = [clf_gbc]
     weight = [lr(0.64), lr(0.65)]
 
     y_pred_all = []
@@ -253,13 +253,13 @@ if __name__ == '__main__':
     # exit()
 
     # add data for periodic time that hit the boundary
-    add_data = df_train[df_train.hour<6]
-    add_data.hour = add_data.hour + 24 * fw[2]
-    df_train = df_train.append(add_data)
-
-    add_data = df_train[df_train.hour>98]
-    add_data.hour = add_data.hour - 24 * fw[2]
-    df_train = df_train.append(add_data)
+    # add_data = df_train[df_train.hour<6]
+    # add_data.hour = add_data.hour + 24 * fw[2]
+    # df_train = df_train.append(add_data)
+    #
+    # add_data = df_train[df_train.hour>98]
+    # add_data.hour = add_data.hour - 24 * fw[2]
+    # df_train = df_train.append(add_data)
 
     print('Solving')
     #Solving classification problems inside each grid cell 
