@@ -46,7 +46,19 @@ print d2 * 0.1
 # # make prediction
 # preds = bst.predict(dtest)
 
-pp = pd.DataFrame(np.random.rand(3,2))
-print_type(pp)
-print pp[0] + 1
+# pp = pd.DataFrame(np.random.rand(3,2))
+# print_type(pp)
+# print pp[0] + 1
 
+row_ids = [5, 21]
+labels = [13, 23]
+values = np.array([[1,2],[3,4]])
+
+pd1 = pd.DataFrame(data = values, index=row_ids, columns=labels)
+
+row_ids = [5, 21]
+labels = [13, 23]
+values = np.array([[9,4],[1,2]])
+pd2 = pd.DataFrame(data = values, index=row_ids, columns=labels)
+
+print(pd1 + pd2)

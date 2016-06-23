@@ -98,6 +98,22 @@ def fb_validate1(pred, data_frame):
 
     return mapk(acutal_list, pre_list)
 
+def fb_validate2(pre_frame, data_frame):
+
+    pre_frame = pre_frame.sort_values(by=['row_id'])
+
+    print(pre_frame)
+    exit()
+
+    pre_list = pre_frame.drop('row_id', axis=1).values
+
+    pre_row_id_list = pre_frame['row_id'].values
+
+    actual_data_frame = data_frame[data_frame["row_id"].isin(pre_row_id_list)]
+    acutal_list = actual_data_frame['place_id'].values
+    acutal_list = [[v] for v in acutal_list]
+
+    return mapk(acutal_list, pre_list)
 
 def fb_validate(pre_frame, data_frame):
 
@@ -112,6 +128,19 @@ def fb_validate(pre_frame, data_frame):
 
     return mapk(acutal_list, pre_list)
 
+#在fb_validate基础上，改为了data_frame.index
+def fb_validate3(pre_frame, data_frame):
+
+    pre_frame = pre_frame.sort_values(by=['row_id'])
+    pre_list = pre_frame.drop('row_id', axis=1).values
+
+    pre_row_id_list = pre_frame['row_id'].values
+
+    actual_data_frame = data_frame[data_frame.index.isin(pre_row_id_list)]
+    acutal_list = actual_data_frame['place_id'].values
+    acutal_list = [[v] for v in acutal_list]
+
+    return mapk(acutal_list, pre_list)
 # all = pd.read_table('data/sample_xy.txt', sep = ',', names = ['row_id', 'x', 'y', 'accuracy', 'time', 'place_id'])
 # fb_validate1([[1,2,3],[4,5,6]], all)
 # cols = all.columns

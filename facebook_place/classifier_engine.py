@@ -1,31 +1,22 @@
+#coding:utf8
 
 from __future__ import division
+import pickle
 import numpy as np
 import pandas as pd
-import time
 from sklearn.preprocessing import LabelEncoder
-
-from sklearn.ensemble import RandomForestClassifier, BaggingClassifier, GradientBoostingClassifier
 from sklearn.neighbors import KNeighborsClassifier
-# import xgboost as xgb
+from sklearn.ensemble import RandomForestClassifier
 
-from metrics import fb_validate1
+import time
+from metrics import fb_validate3
 
 import warnings
 warnings.filterwarnings("ignore")
 pd.options.mode.chained_assignment = None  # default='warn'
 
-def lr(acc):
-
-    err = 1 - acc
-
-    deta_t = np.math.sqrt((1 - err) / err)
-
-    return np.math.log(deta_t)
-
-
 # Classification inside one grid cell.
-def process_one_cell(df_cell_train, df_cell_test, fw, th):
+def process_one_cell(clf, df_cell_train, df_cell_test, fw, th):
 
     #Working on df_train
     place_counts = df_cell_train.place_id.value_counts()
@@ -44,7 +35,6 @@ def process_one_cell(df_cell_train, df_cell_test, fw, th):
     #Preparing data
     le = LabelEncoder()
     y = le.fit_transform(df_cell_train.place_id.values)
-
     X = df_cell_train.drop(['place_id'], axis=1).values
 
     if 'place_id' in df_cell_test.columns:
@@ -58,63 +48,32 @@ def process_one_cell(df_cell_train, df_cell_test, fw, th):
 
         X_test = df_cell_test.values.astype(float)
 
-    #Applying the classifier
 
-    r_state = 1
+    clf.fit(X, y)
+    y_pred = clf.predict_proba(X_test)
+    labels = le.inverse_transform(np.arange(y.min(), y.max() + 1))
 
-    clf_knn = KNeighborsClassifier(n_neighbors=26, weights='distance',
-                               metric='manhattan', n_jobs = -1)
-    clf_bagging_knn = BaggingClassifier(clf_knn, n_jobs=-1, n_estimators=50, random_state=r_state)
+    pred_frame = pd.DataFrame(data = y_pred, index=row_ids, columns=labels)
 
-    clf_rf = RandomForestClassifier(n_estimators=200, n_jobs=-1, random_state=r_state)
+    # print(pred_frame)
+    # 1327075245  1447458772  1590689183  1785603962  1912601713  \
+# row_id
+# 18786      0.000000    0.000000    0.000000    0.000000    0.000000
+# 37327      0.000000    0.000000    0.000000    0.000000    0.103789
 
-    # clf_gbc = GradientBoostingClassifier(n_estimators=10,  random_state=r_state)
-
-    # clf_nn = Classifier(layers=[Layer('Tanh', units=50), Layer("Softmax")], learning_rate=0.01, n_iter = 125, random_state=r_state)
-    num_round = 2
-    # param = {'max_depth':2, 'eta':1, 'silent':1, 'objective':'binary:logistic' }
-    # bst = xgb.train(param, ,label = y)
-
-    clf_list = [clf_rf]
-    weight = [lr(0.64), lr(0.65)]
-
-    y_pred_all = []
-
-    for ci, cl in enumerate(clf_list):
-
-        cl.fit(X, y)
-        y_pred = cl.predict_proba(X_test)
-
-        sort_index = np.argsort(y_pred, axis=1)[:,::-1]
-
-        for j in range(0, len(y_pred)):
-            for i, si in enumerate(sort_index[j]):
-                y_pred[j][si] = i
-
-        if len(y_pred_all) == 0:
-
-            y_pred_all = np.zeros(y_pred.shape)
-
-        y_pred_all += (y_pred * weight[ci])
-
-    # pred_labels = le.inverse_transform(np.argsort(y_pred, axis=1)[:,::-1][:,:3])
-    pred_labels = le.inverse_transform(np.argsort(y_pred_all, axis=1)[:,:3])
-
-
-
-    return pred_labels, row_ids
+    return pred_frame
 
 def process_grid(df_train, df_test, size, x_step, y_step, x_border_augment, y_border_augment, fw, th):
     """
     Iterates over all grid cells, aggregates the results and makes the
     submission.
     """
-    # preds = np.zeros((df_test.shape[0], 3), dtype=int)
+
+    run_time = 1
 
     process_time = time.time()
 
-    N = df_test.index.values.max() + 1
-    preds = np.zeros((N, 3), dtype=int)
+    preds_total = pd.DataFrame()
 
     for i in range((int)(size/x_step)):
         start_time_row = time.time()
@@ -129,6 +88,7 @@ def process_grid(df_train, df_test, size, x_step, y_step, x_border_augment, y_bo
         df_col_test = df_test[(df_test['x'] >= x_min) & (df_test['x'] < x_max)]
 
         for j in range((int)(size/y_step)):
+
             start_time_cell = time.time()
             y_min = y_step * j
             y_max = y_step * (j+1)
@@ -140,16 +100,24 @@ def process_grid(df_train, df_test, size, x_step, y_step, x_border_augment, y_bo
             df_cell_train = df_col_train[(df_col_train['y'] >= y_min-y_border_augment) & (df_col_train['y'] < y_max+y_border_augment)]
             df_cell_test = df_col_test[(df_col_test['y'] >= y_min) & (df_col_test['y'] < y_max)]
 
-            # print i, j
-
             if(len(df_cell_train) == 0 or len(df_cell_test) == 0):
                 continue
 
-            #Applying classifier to one grid cell
-            pred_labels, row_ids = process_one_cell(df_cell_train, df_cell_test, fw, th)
+            if run_time > 1:
 
-            #Updating predictions
-            preds[row_ids] = pred_labels
+                break
+
+            # run_time += 1
+
+            r_state = 1
+            #Applying classifier to one grid cell
+            # clf_knn = KNeighborsClassifier(n_neighbors=26, weights='distance',
+            #                    metric='manhattan', n_jobs = -1)
+
+            clf_rf = RandomForestClassifier(n_estimators=200, n_jobs=-1, random_state=r_state)
+
+            cell_df = process_one_cell(clf_rf, df_cell_train, df_cell_test, fw, th)
+            preds_total = pd.concat([preds_total, cell_df], axis=0)
 
             print "x,y %d,%d elapsed time: %.2f seconds" % (i, j, time.time() - start_time_cell)
 
@@ -157,21 +125,27 @@ def process_grid(df_train, df_test, size, x_step, y_step, x_border_augment, y_bo
 
     print("process time: %.2f seconds" % (time.time() - process_time))
 
-    print fb_validate1(preds, df_test)
+    # preds_total = preds_total.fillna(0)
+
+    preds_total.to_csv('model/rf-base.csv', index=True, header=True, index_label='row_id')
+
+    exit()
+
+    cols = preds_total.columns
+    ranks_index = np.argsort(preds_total.values, axis=1)[:,::-1][:,:3]
+    for r in ranks_index:
+
+        for index, ri in enumerate(r):
+
+            r[index] = cols[ri]
+
+    preds_total['0_'], preds_total['1_'], preds_total['2_'] = zip(*ranks_index)
+    preds_total = preds_total[['0_','1_','2_']]
+    preds_total['row_id'] = preds_total.index
+    preds_total = preds_total.reset_index(drop=True)
+
+    print fb_validate3(preds_total, df_test)
     print 'Finish!'
-
-    '''
-    print('Generating submission file ...')
-    #Auxiliary dataframe with the 3 best predictions for each sample
-    df_aux = pd.DataFrame(preds, dtype=str, columns=['l1', 'l2', 'l3'])
-
-    #Concatenating the 3 predictions for each sample
-    ds_sub = df_aux.l1.str.cat([df_aux.l2, df_aux.l3], sep=' ')
-
-    #Writting to csv
-    ds_sub.name = 'place_id'
-    ds_sub.to_csv('sub_knn_pp.csv', index=True, header=True, index_label='row_id')
-    '''
 
 ##########################################################
 # Main
@@ -204,25 +178,16 @@ if __name__ == '__main__':
     df_train = all.iloc[int(0.2 * N):]
     df_test = all.iloc[:int(0.2 * N)]
     validate = True
-                          
+
     #Feature engineering
-    
     print('Preparing train data')
     minute = df_train['time']%60
     df_train['hour'] = df_train['time']//60
     df_train['weekday'] = df_train['hour']//24
     df_train['month'] = df_train['weekday']//30
-    # df_train['season'] = (df_train['month'] + 2)//3 % 4
     df_train['year'] = (df_train['weekday']//365+1)*fw[5]
 
     df_train['hour'] = ((df_train['hour']%24+1)+minute/60.0)
-    # add_hour_data = df_train[df_train.hour < (6 / fw[2])]
-    # add_hour_data.hour = add_hour_data + 24
-    # df_train = df_train.append(add_hour_data)
-    #
-    # add_hour_data = df_train[df_train.hour > (98 / fw[2])]
-    # add_hour_data.hour = add_hour_data.hour - 24
-    # df_train = df_train.append(add_hour_data)
     df_train['hour'] = df_train['hour'] * fw[2]
 
     df_train['weekday'] = (df_train['weekday']%7+1)*fw[3]
@@ -231,12 +196,11 @@ if __name__ == '__main__':
     df_train.drop(['time'], axis=1, inplace=True)
 
 
-    print('Preparing test data')    
+    print('Preparing test data')
     minute = df_test['time']%60
     df_test['hour'] = df_test['time']//60
     df_test['weekday'] = df_test['hour']//24
     df_test['month'] = df_test['weekday']//30
-    # df_test['season'] = (df_test['month'] + 2)//3 % 4
     df_test['year'] = (df_test['weekday']//365+1)*fw[5]
     df_test['hour'] = ((df_test['hour']%24+1)+minute/60.0)*fw[2]
     df_test['weekday'] = (df_test['weekday']%7+1)*fw[3]
@@ -244,20 +208,5 @@ if __name__ == '__main__':
     df_test['accuracy'] = np.log10(df_test['accuracy'])*fw[6]
     df_test.drop(['time'], axis=1, inplace=True)
 
-    #season: +0 => 0.6319 +1 => 0.632 +2 => 0.6338 +3 => 0.6325
-
-    # print df_train.describe()
-    # exit()
-
-    # add data for periodic time that hit the boundary
-    # add_data = df_train[df_train.hour<6]
-    # add_data.hour = add_data.hour + 24 * fw[2]
-    # df_train = df_train.append(add_data)
-    #
-    # add_data = df_train[df_train.hour>98]
-    # add_data.hour = add_data.hour - 24 * fw[2]
-    # df_train = df_train.append(add_data)
-
     print('Solving')
-    #Solving classification problems inside each grid cell 
     process_grid(df_train, df_test, size, x_step, y_step, x_border_augment, y_border_augment, fw, th)

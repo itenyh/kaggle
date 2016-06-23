@@ -113,8 +113,8 @@ def sample_data_ninegrid(input_path, out_path):
 # print sample_data_xy('data/train.csv', 'data/s_xy.txt', [[(0.0, 0.2), (0.0, 0.2)]])
 
 print 'Loading data ...'
-all = pd.read_csv('data/train.csv', usecols=['row_id','x','y','accuracy','time','place_id'])
-# all = pd.read_table('data/sample_xy.txt', sep = ',', names = ['row_id', 'x', 'y', 'accuracy', 'time', 'place_id'])
+# all = pd.read_csv('data/train.csv', usecols=['row_id','x','y','accuracy','time','place_id'])
+all = pd.read_table('data/sample_xy.txt', sep = ',', names = ['row_id', 'x', 'y', 'accuracy', 'time', 'place_id'])
 all = all.sort_values(by=['time'])
 # print all
 # exit()
@@ -226,6 +226,9 @@ for x_min, x_max in x_ranges:
         # exit()
 
         preds = pd.DataFrame.from_dict(preds)
+
+        print(preds)
+        exit()
 
         preds['0_'], preds['1_'], preds['2_'] = zip(*preds.apply(lambda x: preds.columns[x.argsort()[::-1][:3]].tolist(), axis=1))
         preds = preds[['0_','1_','2_']]
