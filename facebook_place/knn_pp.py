@@ -8,10 +8,10 @@ from sklearn import preprocessing as pp
 from common.tools import print_type
 
 from sklearn.ensemble import RandomForestClassifier, BaggingClassifier
-from sknn.mlp import Classifier, Layer, Native
-from lasagne import layers as lasagne, nonlinearities as nl
+# from sknn.mlp import Classifier, Layer, Native
+# from lasagne import layers as lasagne, nonlinearities as nl
 from sklearn.neighbors import KNeighborsClassifier
-import xgboost as xgb
+# import xgboost as xgb
 
 import warnings
 
