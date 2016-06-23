@@ -170,7 +170,7 @@ def process_grid(df_train, df_test, size, x_step, y_step, x_border_augment, y_bo
 
     #Writting to csv
     ds_sub.name = 'place_id'
-    ds_sub.to_csv('sub_knn-season_pp.csv', index=True, header=True, index_label='row_id')
+    ds_sub.to_csv('sub_bagknn-rf-season_pp.csv', index=True, header=True, index_label='row_id')
 
 
 ##########################################################
