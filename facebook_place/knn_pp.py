@@ -111,6 +111,8 @@ def process_grid(df_train, df_test, size, x_step, y_step, x_border_augment, y_bo
     """
     # preds = np.zeros((df_test.shape[0], 3), dtype=int)
 
+    process_time = time.time()
+
     N = df_test.index.values.max() + 1
     preds = np.zeros((N, 3), dtype=int)
 
@@ -152,6 +154,8 @@ def process_grid(df_train, df_test, size, x_step, y_step, x_border_augment, y_bo
             print "x,y %d,%d elapsed time: %.2f seconds" % (i, j, time.time() - start_time_row)
 
         print("Row %d/%d elapsed time: %.2f seconds" % (i+1, (int)(size/x_step),(time.time() - start_time_row)))
+
+    print("process time: %.2f seconds" % (time.time() - process_time))
 
     print fb_validate1(preds, df_test)
     print 'Finish!'
