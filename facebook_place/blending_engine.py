@@ -9,24 +9,33 @@ all = pd.read_table('data/ninegrid_xy.txt', sep = ',', names = ['row_id', 'x', '
                     usecols=['row_id', 'x', 'y', 'accuracy','time', 'place_id'], index_col = 0)
 
 
-def vlidate_by_model(model):
+def vlidate_by_model(models):
 
-    df = pd.read_csv(model, index_col = 0)
-    df = df.fillna(0)
-    cols = df.columns
-    ranks_index = np.argsort(df.values, axis=1)[:,::-1][:,:3]
+    total_pre = pd.DataFrame()
+    for model in models:
+
+        df = pd.read_csv(model, index_col = 0)
+        df = df.fillna(0)
+
+        print(df.head())
+        total_pre += df
+
+
+    cols = total_pre.columns
+    ranks_index = np.argsort(total_pre.values, axis=1)[:,::-1][:,:3]
     for r in ranks_index:
 
         for index, ri in enumerate(r):
 
             r[index] = cols[ri]
 
-    df['0_'], df['1_'], df['2_'] = zip(*ranks_index)
-    df = df[['0_','1_','2_']]
-    df['row_id'] = df.index
-    df = df.reset_index(drop=True)
+    total_pre['0_'], total_pre['1_'], total_pre['2_'] = zip(*ranks_index)
+    total_pre = df[['0_','1_','2_']]
+    total_pre['row_id'] = total_pre.index
+    total_pre = total_pre.reset_index(drop=True)
 
-    print fb_validate3(df, all)
+    print fb_validate3(total_pre, all)
 
 
-vlidate_by_model('model/rf-base.csv')
+
+vlidate_by_model(['model/knn-26-base.csv', 'model/knn-36-base.csv'])

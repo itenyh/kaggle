@@ -111,12 +111,12 @@ def process_grid(df_train, df_test, size, x_step, y_step, x_border_augment, y_bo
 
             r_state = 0
             #Applying classifier to one grid cell
-            # clf_knn = KNeighborsClassifier(n_neighbors=26, weights='distance',
-            #                    metric='manhattan', n_jobs = -1)
+            clf_knn = KNeighborsClassifier(n_neighbors=36, weights='distance',
+                               metric='manhattan', n_jobs = -1)
+            #
+            # clf_rf = RandomForestClassifier(n_estimators=200, n_jobs=-1, random_state=r_state)
 
-            clf_rf = RandomForestClassifier(n_estimators=200, n_jobs=-1, random_state=r_state)
-
-            cell_df = process_one_cell(clf_rf, df_cell_train, df_cell_test, fw, th)
+            cell_df = process_one_cell(clf_knn, df_cell_train, df_cell_test, fw, th)
             preds_total = pd.concat([preds_total, cell_df], axis=0)
 
             print "x,y %d,%d elapsed time: %.2f seconds" % (i, j, time.time() - start_time_cell)
@@ -127,7 +127,7 @@ def process_grid(df_train, df_test, size, x_step, y_step, x_border_augment, y_bo
 
     # preds_total = preds_total.fillna(0)
 
-    preds_total.to_csv('model/rf-base.csv', index=True, header=True, index_label='row_id')
+    preds_total.to_csv('model/knn-36-base.csv', index=True, header=True, index_label='row_id')
 
     exit()
 
