@@ -49,6 +49,7 @@ def process_one_cell(df_cell_train, df_cell_test, fw, th):
     #Preparing data
     le = LabelEncoder()
     y = le.fit_transform(df_cell_train.place_id.values)
+
     X = df_cell_train.drop(['place_id'], axis=1).values
 
     if 'place_id' in df_cell_test.columns:
@@ -72,14 +73,14 @@ def process_one_cell(df_cell_train, df_cell_test, fw, th):
 
     clf_rf = RandomForestClassifier(n_estimators=200, n_jobs=-1, random_state=r_state)
 
-    clf_gbc = GradientBoostingClassifier(n_estimators=100,  random_state=r_state)
+    clf_gbc = GradientBoostingClassifier(n_estimators=10,  random_state=r_state)
 
     # clf_nn = Classifier(layers=[Layer('Tanh', units=50), Layer("Softmax")], learning_rate=0.01, n_iter = 125, random_state=r_state)
     num_round = 2
     # param = {'max_depth':2, 'eta':1, 'silent':1, 'objective':'binary:logistic' }
     # bst = xgb.train(param, ,label = y)
 
-    clf_list = [clf_gbc]
+    clf_list = [clf_bagging_knn, clf_rf]
     weight = [lr(0.64), lr(0.65)]
 
     y_pred_all = []
