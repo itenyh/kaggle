@@ -22,7 +22,7 @@ def vlidate_by_model(models, weight = None, filename = None):
     total_pre = pd.DataFrame()
     for m_i, model in enumerate(models):
 
-        df = pd.read_csv(model, index_col = 0)
+        df = pd.read_csv('model/' + model, index_col = 0)
         df = df.fillna(0)
 
         w = 1
@@ -62,5 +62,4 @@ def vlidate_by_model(models, weight = None, filename = None):
     return score
 
 
-
-vlidate_by_model(['model/rf-base.csv'], [0.6471], 'test_sub.csv')
+print vlidate_by_model(['p-rf-1352.csv', 'p-rf-1419.csv'], [0.6494, 0.6494])

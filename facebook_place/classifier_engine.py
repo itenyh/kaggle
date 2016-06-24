@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier, BaggingClassifier
-from data_engine import data_engineering
+from data_engine import data_engineering, test_data
 
 import time, os
 from metrics import fb_validate3
@@ -185,7 +185,7 @@ def process_split(clf, split_data_file, y_step, y_border_augment, fw, th,
                 if(len(df_cell_train) == 0 or len(df_cell_test) == 0):
                     continue
 
-                data_engineering(df_cell_train, df_cell_test, fw)
+                df_cell_train, df_cell_test = data_engineering(df_cell_train, df_cell_test, fw)
 
                 cell_df = process_one_cell(clf, df_cell_train, df_cell_test, fw, th)
                 preds_total = pd.concat([preds_total, cell_df], axis=0)
@@ -219,21 +219,6 @@ if __name__ == '__main__':
     x_border_augment = 0.025
     y_border_augment = 0.025
 
-    # print('Loading data ...')
-    # df_train = pd.read_csv('data/train.csv',
-    #                        usecols=['row_id','x','y','time','place_id','accuracy'],
-    #                        index_col = 0)
-    # df_test = pd.read_csv('data/test.csv',
-    #                       usecols=['row_id','x','y','time','accuracy'],
-    #                       index_col = 0)
-
-    all = pd.read_table('data/ninegrid_xy.txt', sep = ',', names = ['row_id', 'x', 'y', 'accuracy', 'time', 'place_id'],
-                    usecols=['row_id', 'x', 'y', 'accuracy','time', 'place_id'], index_col = 0)
-    #
-    # N = len(all)
-    # df_train = all.iloc[int(0.2 * N):]
-    # df_test = all.iloc[:int(0.2 * N)]
-
 
     clf_knn = KNeighborsClassifier(n_neighbors=26, weights='distance',
                                metric='manhattan', n_jobs = -1)
@@ -241,7 +226,9 @@ if __name__ == '__main__':
     clf_rf = RandomForestClassifier(n_estimators=200, n_jobs=-1, random_state=r_state)
 
     print('Solving')
-    # process_all(clf_knn, df_train, df_test, size, x_step, y_step, x_border_augment, y_border_augment, fw, th
-    #              , model_name = 'auto_name.csv', output_model = False)
 
-    process_split(clf_rf, 'X-20', y_step, y_border_augment, fw, th, model_name = 'rf-test.csv', output_model = True)
+    all, df_train, df_test = test_data(fw)
+    process_all(clf_knn, df_train, df_test, size, x_step, y_step, x_border_augment, y_border_augment, fw, th
+                 , model_name = 'model/p-rf-1435.csv', output_model = False)
+
+    # process_split(clf_knn, 'X-20', y_step, y_border_augment, fw, th, model_name = 'model/rf-all.csv', output_model = False)

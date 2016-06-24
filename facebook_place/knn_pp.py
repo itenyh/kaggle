@@ -77,7 +77,7 @@ def process_one_cell(df_cell_train, df_cell_test, fw, th):
     # param = {'max_depth':2, 'eta':1, 'silent':1, 'objective':'binary:logistic' }
     # bst = xgb.train(param, ,label = y)
 
-    clf_list = [clf_rf]
+    clf_list = [clf_knn_26]
     weight = [lr(0.64), lr(0.65)]
 
     y_pred_all = []

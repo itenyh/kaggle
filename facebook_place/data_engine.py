@@ -7,6 +7,19 @@ import os, time
 
 data_path = 'data/split_data/'
 
+def test_data(fw, name = 'data/ninegrid_xy.txt'):
+
+    all = pd.read_table(name, sep = ',', names = ['row_id', 'x', 'y',  'accuracy', 'time', 'place_id'],
+                    usecols=['row_id', 'x', 'y', 'accuracy','time', 'place_id'], index_col = 0)
+
+    N = len(all)
+    df_train = all.iloc[int(0.2 * N):]
+    df_test = all.iloc[:int(0.2 * N)]
+
+    df_train, df_test = data_engineering(df_train, df_test, fw)
+
+    return all, df_train, df_test
+
 def data_engineering(df_train, df_test, fw):
 
     minute = df_train['time']%60
@@ -34,6 +47,16 @@ def data_engineering(df_train, df_test, fw):
     df_test['accuracy'] = np.log10(df_test['accuracy'])*fw[6]
     df_test.drop(['time'], axis=1, inplace=True)
 
+    # # add data for periodic time that hit the boundary
+    # add_data = df_train[df_train.hour<6]
+    # add_data.hour = add_data.hour + 24 * fw[2]
+    # df_train = df_train.append(add_data)
+    #
+    # add_data = df_train[df_train.hour>98]
+    # add_data.hour = add_data.hour - 24 * fw[2]
+    # df_train = df_train.append(add_data)
+
+    return df_train, df_test
 
 def cell_split(df_train, df_test, size, x_step, x_border_augment, sub_fix = ''):
 
@@ -81,31 +104,33 @@ def cell_split(df_train, df_test, size, x_step, x_border_augment, sub_fix = ''):
 
     print "Total Process time: %.2f seconds Train:%d, Test:%d" % (time.time() - start_time, all_train_num, all_test_num)
 
-#Defining the size of the grid
-# size = 10.0
-# x_step = 0.5
-# y_step = 0.5
-#
-# x_border_augment = 0.025
-# y_border_augment = 0.025
-#
-# print('Loading data ...')
-# df_train = pd.read_csv('data/train.csv',
-#                        usecols=['row_id','x','y','time','place_id','accuracy'],
-#                        index_col = 0)
-# df_test = pd.read_csv('data/test.csv',
-#                       usecols=['row_id','x','y','time','accuracy'],
-#                       index_col = 0)
-#
-# # all = pd.read_table('data/ninegrid_xy.txt', sep = ',', names = ['row_id', 'x', 'y', 'accuracy', 'time', 'place_id'],
-# #                     usecols=['row_id', 'x', 'y', 'accuracy','time', 'place_id'], index_col = 0)
-# #
-# # N = len(all)
-# # df_train = all.iloc[int(0.2 * N):]
-# # df_test = all.iloc[:int(0.2 * N)]
-#
-# print('Processing ...')
-# cell_split(df_train, df_test, size, x_step, x_border_augment, 'all')
+def do():
+
+    # #Defining the size of the grid
+    size = 10.0
+    x_step = 0.1
+    y_step = 0.1
+
+    x_border_augment = 0.025
+    y_border_augment = 0.025
+    #
+    # print('Loading data ...')
+    # df_train = pd.read_csv('data/train.csv',
+    #                        usecols=['row_id','x','y','time','place_id','accuracy'],
+    #                        index_col = 0)
+    # df_test = pd.read_csv('data/test.csv',
+    #                       usecols=['row_id','x','y','time','accuracy'],
+    #                       index_col = 0)
+    # #
+    all = pd.read_table('data/ninegrid_xy.txt', sep = ',', names = ['row_id', 'x', 'y', 'accuracy', 'time', 'place_id'],
+                        usecols=['row_id', 'x', 'y', 'accuracy','time', 'place_id'], index_col = 0)
+
+    N = len(all)
+    df_train = all.iloc[int(0.2 * N):]
+    df_test = all.iloc[:int(0.2 * N)]
+
+    print('Processing ...')
+    cell_split(df_train, df_test, size, x_step, x_border_augment, '')
 
 
-
+# do()

@@ -1,4 +1,6 @@
-#facebook_place/data/*
+facebook_place/data/*
+facebook_place/model/*
 facebook_place/rabbish/*
 facebook_place/submission/*
+facebook_place/data/split_data/*
 .idea/*
