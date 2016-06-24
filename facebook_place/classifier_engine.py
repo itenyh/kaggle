@@ -1,19 +1,42 @@
 #coding:utf8
 
 from __future__ import division
-import pickle
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, BaggingClassifier
+from data_engine import data_engineering
 
-import time
+import time, os
 from metrics import fb_validate3
 
 import warnings
 warnings.filterwarnings("ignore")
 pd.options.mode.chained_assignment = None  # default='warn'
+
+r_state = 0
+
+def score(total_pre):
+
+    total_pre = total_pre.fillna(0)
+
+    cols = total_pre.columns
+    ranks_index = np.argsort(total_pre.values, axis=1)[:,::-1][:,:3]
+    for r in ranks_index:
+
+        for index, ri in enumerate(r):
+
+            r[index] = cols[ri]
+
+    total_pre['l1'], total_pre['l2'], total_pre['l3'] = zip(*ranks_index)
+    total_pre = total_pre[['l1','l2','l3']]
+    total_pre['row_id'] = total_pre.index
+    total_pre = total_pre.reset_index(drop=True)
+
+    score = fb_validate3(total_pre, all)
+
+    return score
 
 # Classification inside one grid cell.
 def process_one_cell(clf, df_cell_train, df_cell_test, fw, th):
@@ -55,21 +78,14 @@ def process_one_cell(clf, df_cell_train, df_cell_test, fw, th):
 
     pred_frame = pd.DataFrame(data = y_pred, index=row_ids, columns=labels)
 
-    # print(pred_frame)
-    # 1327075245  1447458772  1590689183  1785603962  1912601713  \
-# row_id
-# 18786      0.000000    0.000000    0.000000    0.000000    0.000000
-# 37327      0.000000    0.000000    0.000000    0.000000    0.103789
-
     return pred_frame
 
-def process_grid(df_train, df_test, size, x_step, y_step, x_border_augment, y_border_augment, fw, th):
+def process_all(clf, df_train, df_test, size, x_step, y_step, x_border_augment, y_border_augment, fw, th,
+                 model_name = 'auto_name.csv', output_model = False):
     """
     Iterates over all grid cells, aggregates the results and makes the
     submission.
     """
-
-    run_time = 1
 
     process_time = time.time()
 
@@ -103,20 +119,7 @@ def process_grid(df_train, df_test, size, x_step, y_step, x_border_augment, y_bo
             if(len(df_cell_train) == 0 or len(df_cell_test) == 0):
                 continue
 
-            if run_time > 1:
-
-                break
-
-            # run_time += 1
-
-            r_state = 0
-            #Applying classifier to one grid cell
-            clf_knn = KNeighborsClassifier(n_neighbors=36, weights='distance',
-                               metric='manhattan', n_jobs = -1)
-            #
-            # clf_rf = RandomForestClassifier(n_estimators=200, n_jobs=-1, random_state=r_state)
-
-            cell_df = process_one_cell(clf_knn, df_cell_train, df_cell_test, fw, th)
+            cell_df = process_one_cell(clf, df_cell_train, df_cell_test, fw, th)
             preds_total = pd.concat([preds_total, cell_df], axis=0)
 
             print "x,y %d,%d elapsed time: %.2f seconds" % (i, j, time.time() - start_time_cell)
@@ -125,27 +128,79 @@ def process_grid(df_train, df_test, size, x_step, y_step, x_border_augment, y_bo
 
     print("process time: %.2f seconds" % (time.time() - process_time))
 
-    # preds_total = preds_total.fillna(0)
+    if output_model: preds_total.to_csv(model_name, index=True, header=True, index_label='row_id')
 
-    preds_total.to_csv('model/knn-36-base.csv', index=True, header=True, index_label='row_id')
+    print score(preds_total)
 
-    exit()
+def process_split(clf, split_data_file, y_step, y_border_augment, fw, th,
+                  model_name = 'auto_name.csv', output_model = False):
 
-    cols = preds_total.columns
-    ranks_index = np.argsort(preds_total.values, axis=1)[:,::-1][:,:3]
-    for r in ranks_index:
+    dir_path = 'data/split_data/' + split_data_file + '/'
 
-        for index, ri in enumerate(r):
+    process_time = time.time()
+    preds_total = pd.DataFrame()
+    for i in range(9999):
 
-            r[index] = cols[ri]
+        start_time_row = time.time()
 
-    preds_total['0_'], preds_total['1_'], preds_total['2_'] = zip(*ranks_index)
-    preds_total = preds_total[['0_','1_','2_']]
-    preds_total['row_id'] = preds_total.index
-    preds_total = preds_total.reset_index(drop=True)
+        train_file_name = 'train_' + str(i) + '.csv'
+        if not os.path.exists(dir_path + train_file_name):
+            train_file_name = 'train_' + str(i) + '_0.csv'
+            if not os.path.exists(dir_path + train_file_name):
 
-    print fb_validate3(preds_total, df_test)
-    print 'Finish!'
+                print('Complete!')
+                break
+
+        test_file_name = 'test_' + str(i) + '.csv'
+        if not os.path.exists(dir_path + test_file_name):
+            test_file_name = 'test_' + str(i) + '_0.csv'
+            if not os.path.exists(dir_path + test_file_name):
+                print('Warning, should not complete with unknow test file name : $s', test_file_name)
+                break
+
+        df_col_train = pd.read_csv(dir_path + train_file_name,
+                               usecols=['row_id','x','y','time','place_id','accuracy'],
+                               index_col = 0)
+        df_col_test = pd.read_csv(dir_path + test_file_name,
+                              usecols=['row_id','x','y','time','accuracy'],
+                              index_col = 0)
+
+        if(len(df_col_train) == 0 or len(df_col_test) == 0):
+                continue
+
+        for j in range((int)(size/y_step)):
+
+                start_time_cell = time.time()
+
+                y_min = y_step * j
+                y_max = y_step * (j+1)
+                y_min = round(y_min, 4)
+                y_max = round(y_max, 4)
+                if y_max == size:
+                    y_max = y_max + 0.001
+
+                df_cell_train = df_col_train[(df_col_train['y'] >= y_min-y_border_augment) & (df_col_train['y'] < y_max+y_border_augment)]
+                df_cell_test = df_col_test[(df_col_test['y'] >= y_min) & (df_col_test['y'] < y_max)]
+
+                if(len(df_cell_train) == 0 or len(df_cell_test) == 0):
+                    continue
+
+                data_engineering(df_cell_train, df_cell_test, fw)
+
+                cell_df = process_one_cell(clf, df_cell_train, df_cell_test, fw, th)
+                preds_total = pd.concat([preds_total, cell_df], axis=0)
+
+                print "x,y %d,%d elapsed time: %.2f seconds" % (i, j, time.time() - start_time_cell)
+
+        print("Row %d/%d elapsed time: %.2f seconds" % (i+1, (int)(size/x_step),(time.time() - start_time_row)))
+
+    print("process time: %.2f seconds" % (time.time() - process_time))
+
+    if output_model: preds_total.to_csv(model_name, index=True, header=True, index_label='row_id')
+
+    print score(preds_total)
+
+
 
 ##########################################################
 # Main
@@ -153,6 +208,7 @@ if __name__ == '__main__':
 
     # Input varialbles
     fw = [500., 1000., 4., 3., 2., 10., 10.] #feature weights (black magic here)
+    # fw = [1., 1., 1., 1., 1., 1., 1.]
     th = 5 #Keeping place_ids with more than th samples.
 
     #Defining the size of the grid
@@ -163,7 +219,7 @@ if __name__ == '__main__':
     x_border_augment = 0.025
     y_border_augment = 0.025
 
-    print('Loading data ...')
+    # print('Loading data ...')
     # df_train = pd.read_csv('data/train.csv',
     #                        usecols=['row_id','x','y','time','place_id','accuracy'],
     #                        index_col = 0)
@@ -171,42 +227,21 @@ if __name__ == '__main__':
     #                       usecols=['row_id','x','y','time','accuracy'],
     #                       index_col = 0)
 
-    all = pd.read_table('data/ninegrid_xy.txt', sep = ',', names = ['row_id', 'x', 'y',  'accuracy', 'time', 'place_id'],
+    all = pd.read_table('data/ninegrid_xy.txt', sep = ',', names = ['row_id', 'x', 'y', 'accuracy', 'time', 'place_id'],
                     usecols=['row_id', 'x', 'y', 'accuracy','time', 'place_id'], index_col = 0)
-
-    N = len(all)
-    df_train = all.iloc[int(0.2 * N):]
-    df_test = all.iloc[:int(0.2 * N)]
-    validate = True
-
-    #Feature engineering
-    print('Preparing train data')
-    minute = df_train['time']%60
-    df_train['hour'] = df_train['time']//60
-    df_train['weekday'] = df_train['hour']//24
-    df_train['month'] = df_train['weekday']//30
-    df_train['year'] = (df_train['weekday']//365+1)*fw[5]
-
-    df_train['hour'] = ((df_train['hour']%24+1)+minute/60.0)
-    df_train['hour'] = df_train['hour'] * fw[2]
-
-    df_train['weekday'] = (df_train['weekday']%7+1)*fw[3]
-    df_train['month'] = (df_train['month']%12+1)*fw[4]
-    df_train['accuracy'] = np.log10(df_train['accuracy'])*fw[6]
-    df_train.drop(['time'], axis=1, inplace=True)
+    #
+    # N = len(all)
+    # df_train = all.iloc[int(0.2 * N):]
+    # df_test = all.iloc[:int(0.2 * N)]
 
 
-    print('Preparing test data')
-    minute = df_test['time']%60
-    df_test['hour'] = df_test['time']//60
-    df_test['weekday'] = df_test['hour']//24
-    df_test['month'] = df_test['weekday']//30
-    df_test['year'] = (df_test['weekday']//365+1)*fw[5]
-    df_test['hour'] = ((df_test['hour']%24+1)+minute/60.0)*fw[2]
-    df_test['weekday'] = (df_test['weekday']%7+1)*fw[3]
-    df_test['month'] = (df_test['month']%12+1)*fw[4]
-    df_test['accuracy'] = np.log10(df_test['accuracy'])*fw[6]
-    df_test.drop(['time'], axis=1, inplace=True)
+    clf_knn = KNeighborsClassifier(n_neighbors=26, weights='distance',
+                               metric='manhattan', n_jobs = -1)
+    clf_bagging_knn = BaggingClassifier(clf_knn, n_jobs=-1, n_estimators=50, random_state=r_state)
+    clf_rf = RandomForestClassifier(n_estimators=200, n_jobs=-1, random_state=r_state)
 
     print('Solving')
-    process_grid(df_train, df_test, size, x_step, y_step, x_border_augment, y_border_augment, fw, th)
+    # process_all(clf_knn, df_train, df_test, size, x_step, y_step, x_border_augment, y_border_augment, fw, th
+    #              , model_name = 'auto_name.csv', output_model = False)
+
+    process_split(clf_rf, 'X-20', y_step, y_border_augment, fw, th, model_name = 'rf-test.csv', output_model = True)

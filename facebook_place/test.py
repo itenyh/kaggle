@@ -5,6 +5,7 @@ from  common.tools import print_type
 import numpy as np
 import pandas as pd
 import metrics as mt
+import os
 
 import sklearn.preprocessing as pp
 import xgboost as xgb
@@ -61,4 +62,4 @@ labels = [13, 23]
 values = np.array([[9,4],[1,2]])
 pd2 = pd.DataFrame(data = values, index=row_ids, columns=labels)
 
-print(pd1 + pd2)
+print(pd.concat([pd1,pd2]))
