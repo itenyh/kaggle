@@ -6,23 +6,37 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier, BaggingClassifier
-from data_engine import data_engineering, test_data
 
+from facebook_place.data_engine import data_engineering, test_data
 import time, os
-from metrics import fb_validate4
+
+from facebook_place.test import max_nonzero_num
+from facebook_place.metrics import fb_validate3
 
 import warnings
 warnings.filterwarnings("ignore")
 pd.options.mode.chained_assignment = None  # default='warn'
 
 r_state = 0
-rank_left = 15
 
 def score(total_pre):
 
-    total_pre = total_pre[['0_','1_','2_']]
+    total_pre = total_pre.fillna(0)
 
-    score = fb_validate4(total_pre, all)
+    cols = total_pre.columns
+    ranks_index = np.argsort(total_pre.values, axis=1)[:,::-1][:,:3]
+    for r in ranks_index:
+
+        for index, ri in enumerate(r):
+
+            r[index] = cols[ri]
+
+    total_pre['l1'], total_pre['l2'], total_pre['l3'] = zip(*ranks_index)
+    total_pre = total_pre[['l1','l2','l3']]
+    total_pre['row_id'] = total_pre.index
+    total_pre = total_pre.reset_index(drop=True)
+
+    score = fb_validate3(total_pre, all)
 
     return score
 
@@ -63,9 +77,11 @@ def process_one_cell(clf, df_cell_train, df_cell_test, fw, th):
     clf.fit(X, y)
     y_pred = clf.predict_proba(X_test)
 
-    pred_labels = le.inverse_transform(np.argsort(y_pred, axis=1)[:,::-1][:,:rank_left])
+    labels = le.inverse_transform(np.arange(y.min(), y.max() + 1))
 
-    return pred_labels, row_ids
+    pred_frame = pd.DataFrame(data = y_pred, index=row_ids, columns=labels)
+
+    return pred_frame
 
 def process_all(clf, df_train, df_test, size, x_step, y_step, x_border_augment, y_border_augment, fw, th,
                  model_name = 'auto_name.csv', output_model = False):
@@ -76,7 +92,7 @@ def process_all(clf, df_train, df_test, size, x_step, y_step, x_border_augment, 
 
     process_time = time.time()
 
-    preds_total = {}
+    preds_total = pd.DataFrame()
 
     for i in range((int)(size/x_step)):
         start_time_row = time.time()
@@ -106,10 +122,11 @@ def process_all(clf, df_train, df_test, size, x_step, y_step, x_border_augment, 
             if(len(df_cell_train) == 0 or len(df_cell_test) == 0):
                 continue
 
-            pred_labels, row_ids = process_one_cell(clf, df_cell_train, df_cell_test, fw, th)
+            cell_df = process_one_cell(clf, df_cell_train, df_cell_test, fw, th)
 
             add_pre_time = time.time()
-            for item in zip(row_ids, pred_labels): preds_total[item[0]] = item[1]
+            preds_total = pd.concat([preds_total, cell_df], axis=0)
+
 
             print "x,y %d,%d elapsed time: %.2f seconds add_pre_time: %.2f train:%d test:%d" % \
                   (i, j, time.time() - start_time_cell, time.time() - add_pre_time, len(df_cell_train), len(df_cell_test))
@@ -118,13 +135,9 @@ def process_all(clf, df_train, df_test, size, x_step, y_step, x_border_augment, 
 
     print("process time: %.2f seconds" % (time.time() - process_time))
 
-    preds_total = pd.DataFrame(preds_total, index=[str(i) + '_' for i in range(rank_left)]).T
-    preds_total.index.names = ['row_id']
-
     if output_model: preds_total.to_csv(model_name, index=True, header=True, index_label='row_id')
 
     return score(preds_total)
-
 
 def process_split(clf, split_data_file, y_step, y_border_augment, fw, th,
                   model_name = 'auto_name.csv', output_model = False):
@@ -132,7 +145,7 @@ def process_split(clf, split_data_file, y_step, y_border_augment, fw, th,
     dir_path = 'data/split_data/' + split_data_file + '/'
 
     process_time = time.time()
-    preds_total = {}
+    preds_total = pd.DataFrame()
     for i in range(9999):
 
         start_time_row = time.time()
@@ -181,9 +194,8 @@ def process_split(clf, split_data_file, y_step, y_border_augment, fw, th,
 
                 df_cell_train, df_cell_test = data_engineering(df_cell_train, df_cell_test, fw)
 
-                pred_labels, row_ids = process_one_cell(clf, df_cell_train, df_cell_test, fw, th)
-
-                for item in zip(row_ids, pred_labels): preds_total[item[0]] = item[1]
+                cell_df = process_one_cell(clf, df_cell_train, df_cell_test, fw, th)
+                preds_total = pd.concat([preds_total, cell_df], axis=0)
 
                 print "x,y %d,%d elapsed time: %.2f seconds" % (i, j, time.time() - start_time_cell)
 
@@ -191,12 +203,10 @@ def process_split(clf, split_data_file, y_step, y_border_augment, fw, th,
 
     print("process time: %.2f seconds" % (time.time() - process_time))
 
-    preds_total = pd.DataFrame(preds_total, index=[str(i) + '_' for i in range(rank_left)]).T
-    preds_total.index.names = ['row_id']
-
     if output_model: preds_total.to_csv(model_name, index=True, header=True, index_label='row_id')
 
-    # return score(preds_total)
+    print score(preds_total)
+
 
 
 ##########################################################
@@ -224,10 +234,10 @@ if __name__ == '__main__':
 
     print('Solving')
 
-    # all, df_train, df_test = test_data(fw)
-    # sc = process_all(clf_knn, df_train, df_test, size, x_step, y_step, x_border_augment, y_border_augment, fw, th
-    #                  , model_name = 'model/p-knn-15.csv', output_model = True)
-    # print(sc)
+    all, df_train, df_test = test_data(fw)
+    sc = process_all(clf_rf, df_train, df_test, size, x_step, y_step, x_border_augment, y_border_augment, fw, th
+                     , model_name = 'model/p-knn-1658.csv', output_model = False)
+    print(sc)
 
 
     # result = []
@@ -245,4 +255,4 @@ if __name__ == '__main__':
     #
     # print sorted(zip(result, ii), key=lambda tuple:tuple[0], reverse=True)
 
-    process_split(clf_knn, 'X-20_all', y_step, y_border_augment, fw, th, model_name = 'model/p-knn-split.csv', output_model = True)
+    # process_split(clf_knn, 'X-20_all', y_step, y_border_augment, fw, th, model_name = 'model/rf-all.csv', output_model = False)

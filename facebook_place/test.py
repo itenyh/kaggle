@@ -10,9 +10,37 @@ import os
 import sklearn.preprocessing as pp
 import xgboost as xgb
 
-data = np.array([[0.4, 0.4, 0.8, 0 , 0, 0], [0.2, 0.2, 0.4, 0 , 0, 0]])
-data2 = np.array([[5, 5, 10, 0 , 0, 0], [2, 2, 4, 0 , 0, 0]])
-x = np.array([[0, 3, 1, 0.5], [4, 2, 7, 1]])
+
+def max_nonzero_num(t):
+
+    t = np.sort(t, axis = 1)[:,::-1]
+    N = len(t)
+
+    total_non_zero_index = 0
+    max_num = -1
+    for item_i in t:
+
+        non_zero_index = 0
+
+        for item_j in item_i:
+
+            if item_j == 0:
+
+                break
+
+            non_zero_index += 1
+
+            if non_zero_index > max_num:
+
+                max_num = non_zero_index
+
+        total_non_zero_index += non_zero_index
+
+    print max_num
+
+# data = np.array([[0.4, 0.4, 0.8, 0 , 0, 0], [0.2, 0.2, 0.4, 0 , 0, 0]])
+# data2 = np.array([[5, 5, 10, 0 , 0, 0], [2, 2, 4, 0 , 0, 0]])
+# x = np.array([[0, 3, 1, 0.5], [4, 2, 7, 1]])
 
 # ppp = pp.MaxAbsScaler()
 # data_f = ppp.fit_transform(zip(data))
@@ -32,11 +60,11 @@ x = np.array([[0, 3, 1, 0.5], [4, 2, 7, 1]])
 #
 # print_type(t)
 
-d1 = np.array([[1,2], [4,4]])
-d2 = np.array([[3,4], [1, 2]])
+# d1 = np.array([[1,2], [4,4]])
+# d2 = np.array([[3,4], [1, 2]])
 
 
-print d2 * 0.1
+# print d2 * 0.1
 
 # dtrain = xgb.DMatrix('data/agaricus.txt.train')
 # dtest = xgb.DMatrix('data/agaricus.txt.test')
@@ -51,15 +79,30 @@ print d2 * 0.1
 # print_type(pp)
 # print pp[0] + 1
 
-row_ids = [5, 21]
-labels = [13, 23]
-values = np.array([[1,2],[3,4]])
+# row_ids = [5, 21]
+# labels = [13, 23]
+# values = np.array([[1,2],[3,4]])
+#
+# pd1 = pd.DataFrame(data = values, index=row_ids, columns=labels)
+#
+# row_ids = [5, 21]
+# labels = [13, 23]
+# values = np.array([[9,4],[1,2]])
+# pd2 = pd.DataFrame(data = values, index=row_ids, columns=labels)
+#
+# print(pd.concat([pd1,pd2]))
 
-pd1 = pd.DataFrame(data = values, index=row_ids, columns=labels)
+# t = [(0.3, 0, 9), (0.6, 0, 8)]
+# max_nonzero_num(t)
+# print sorted(t, key=lambda tuple:tuple[0], reverse=True)
 
-row_ids = [5, 21]
-labels = [13, 23]
-values = np.array([[9,4],[1,2]])
-pd2 = pd.DataFrame(data = values, index=row_ids, columns=labels)
+# data = np.random.rand(30, 25000000)
+# print('producing')
+# ddd = pd.DataFrame(data)
+# print(ddd.head())
+# print('transpose')
+# ddd=ddd.T
+# print(ddd.head())
 
-print(pd.concat([pd1,pd2]))
+# dic = {'123':[3,6,7], '453':[1,5,3]}
+# print pd.DataFrame(dic, index=['0_', '1_', '2_'])

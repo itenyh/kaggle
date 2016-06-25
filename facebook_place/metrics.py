@@ -29,6 +29,7 @@ def apk(actual, predicted, k=10):
     num_hits = 0.0
 
     for i,p in enumerate(predicted):
+
         if p in actual and p not in predicted[:i]:
             num_hits += 1.0
             score += num_hits / (i+1.0)
@@ -135,6 +136,19 @@ def fb_validate3(pre_frame, data_frame):
     pre_list = pre_frame.drop('row_id', axis=1).values
 
     pre_row_id_list = pre_frame['row_id'].values
+
+    actual_data_frame = data_frame[data_frame.index.isin(pre_row_id_list)]
+    acutal_list = actual_data_frame['place_id'].values
+    acutal_list = [[v] for v in acutal_list]
+
+    return mapk(acutal_list, pre_list)
+
+def fb_validate4(pre_frame, data_frame):
+
+    pre_frame.sort_index(inplace=True)
+    pre_list = pre_frame.values
+
+    pre_row_id_list = pre_frame.index
 
     actual_data_frame = data_frame[data_frame.index.isin(pre_row_id_list)]
     acutal_list = actual_data_frame['place_id'].values

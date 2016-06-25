@@ -77,7 +77,7 @@ def process_one_cell(df_cell_train, df_cell_test, fw, th):
     # param = {'max_depth':2, 'eta':1, 'silent':1, 'objective':'binary:logistic' }
     # bst = xgb.train(param, ,label = y)
 
-    clf_list = [clf_knn_26]
+    clf_list = [clf_rf]
     weight = [lr(0.64), lr(0.65)]
 
     y_pred_all = []
@@ -216,7 +216,7 @@ if __name__ == '__main__':
     df_train['hour'] = df_train['time']//60
     df_train['weekday'] = df_train['hour']//24
     df_train['month'] = df_train['weekday']//30
-    # df_train['season'] = (df_train['month'] + 2)//3 % 4
+    df_train['season'] = (df_train['month'] + 2)//3 % 4
     df_train['year'] = (df_train['weekday']//365+1)*fw[5]
 
     df_train['hour'] = ((df_train['hour']%24+1)+minute/60.0)
@@ -240,7 +240,7 @@ if __name__ == '__main__':
     df_test['hour'] = df_test['time']//60
     df_test['weekday'] = df_test['hour']//24
     df_test['month'] = df_test['weekday']//30
-    # df_test['season'] = (df_test['month'] + 2)//3 % 4
+    df_test['season'] = (df_test['month'] + 2)//3 % 4
     df_test['year'] = (df_test['weekday']//365+1)*fw[5]
     df_test['hour'] = ((df_test['hour']%24+1)+minute/60.0)*fw[2]
     df_test['weekday'] = (df_test['weekday']%7+1)*fw[3]

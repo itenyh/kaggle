@@ -11,12 +11,20 @@ def test_data(fw, name = 'data/ninegrid_xy.txt'):
 
     all = pd.read_table(name, sep = ',', names = ['row_id', 'x', 'y',  'accuracy', 'time', 'place_id'],
                     usecols=['row_id', 'x', 'y', 'accuracy','time', 'place_id'], index_col = 0)
-
+    #
     N = len(all)
     df_train = all.iloc[int(0.2 * N):]
     df_test = all.iloc[:int(0.2 * N)]
 
     df_train, df_test = data_engineering(df_train, df_test, fw)
+    #
+    # df_train = pd.read_csv('data/train.csv',
+    #                        usecols=['row_id','x','y','time','place_id','accuracy'],
+    #                        index_col = 0)
+    # df_test = pd.read_csv('data/test.csv',
+    #                       usecols=['row_id','x','y','time','accuracy'],
+    #                       index_col = 0)
+    #
 
     return all, df_train, df_test
 
@@ -27,9 +35,8 @@ def data_engineering(df_train, df_test, fw):
     df_train['weekday'] = df_train['hour']//24
     df_train['month'] = df_train['weekday']//30
     df_train['year'] = (df_train['weekday']//365+1)*fw[5]
-    # df_train['season'] = (df_train['month'] + 2)//3 % 4
+    df_train['season'] = (df_train['month'] + 2)//3 % 4 *fw[7]
     df_train['hour'] = ((df_train['hour']%24+1)+minute/60.0)* fw[2]
-
     df_train['weekday'] = (df_train['weekday']%7+1)*fw[3]
     df_train['month'] = (df_train['month']%12+1)*fw[4]
     df_train['accuracy'] = np.log10(df_train['accuracy'])*fw[6]
@@ -41,7 +48,7 @@ def data_engineering(df_train, df_test, fw):
     df_test['month'] = df_test['weekday']//30
     df_test['year'] = (df_test['weekday']//365+1)*fw[5]
     df_test['hour'] = ((df_test['hour']%24+1)+minute/60.0)*fw[2]
-    # df_test['season'] = (df_test['month'] + 2)//3 % 4
+    df_test['season'] = (df_test['month'] + 2)//3 % 4 *fw[7]
     df_test['weekday'] = (df_test['weekday']%7+1)*fw[3]
     df_test['month'] = (df_test['month']%12+1)*fw[4]
     df_test['accuracy'] = np.log10(df_test['accuracy'])*fw[6]
