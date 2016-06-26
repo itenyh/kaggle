@@ -9,7 +9,7 @@ import os
 
 import sklearn.preprocessing as pp
 import xgboost as xgb
-
+import itertools
 
 def max_nonzero_num(t):
 
@@ -106,3 +106,48 @@ def max_nonzero_num(t):
 
 # dic = {'123':[3,6,7], '453':[1,5,3]}
 # print pd.DataFrame(dic, index=['0_', '1_', '2_'])
+
+
+def blend_combine(b_list, b_fi):
+
+    r = []
+
+    for i in range(1,len(b_list)+1):
+
+        iter = itertools.combinations(b_list,i)
+
+        r.append(list(iter))
+
+
+    new_r = []
+    for m in r:
+
+        for n in m:
+
+            is_bad = False
+
+            for item in b_fi:
+
+                in_count = 0
+
+                for itemm in n:
+
+                    if itemm in item:
+
+                        in_count += 1
+
+                if in_count >= 2:
+
+                    is_bad = True
+                    break
+
+            if not is_bad: new_r.append(n)
+
+    return new_r
+
+
+a = ['a', 'b', 'c', 'd']
+
+fi = [['a', 'b'], ['a', 'c']]
+
+blend_combine(a, fi)

@@ -80,6 +80,13 @@ def sample_data_xy(input_path, out_path, boundlist):
 
     return count
 
+def sample_data_uniformity():
+
+    step = 0.2
+
+
+    pass
+
 def sample_data_ninegrid(input_path, out_path):
 
     step = 0.2
@@ -111,6 +118,9 @@ def sample_data_ninegrid(input_path, out_path):
 
 # sample_data_ninegrid('data/train.csv', 'data/ninegrid_xy.txt')
 # print sample_data_xy('data/train.csv', 'data/s_xy.txt', [[(0.0, 0.2), (0.0, 0.2)]])
+
+sample_data('data/train.csv', 'data/1_24_sample.txt', 0.04167)
+exit()
 
 print 'Loading data ...'
 # all = pd.read_csv('data/train.csv', usecols=['row_id','x','y','accuracy','time','place_id'])
@@ -256,8 +266,8 @@ for x_min, x_max in x_ranges:
 # sub_file = os.path.join('submission$$_' + str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")) + '.csv')
 # preds_total.to_csv(sub_file)
 
-print fb_validate(preds_total, test)
-print "Elapsed time overall: %s seconds, Empty grid count: %d " % ((time.time() - start_time), empty_grid)
+# print fb_validate(preds_total, test)
+# print "Elapsed time overall: %s seconds, Empty grid count: %d " % ((time.time() - start_time), empty_grid)
 
 # Elapsed time row: 187.76784682273865 seconds
 # Elapsed time row: 218.19643712043762 seconds

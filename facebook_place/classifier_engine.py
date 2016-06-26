@@ -204,14 +204,14 @@ def process_split(clf, split_data_file, y_step, y_border_augment, fw, th,
 if __name__ == '__main__':
 
     # Input varialbles
-    fw = [500., 1000., 4., 3., 2., 10., 10., 4.] #feature weights (black magic here)
+    fw = [500., 1000., 4., 3., 2., 10., 10., 1.] #feature weights (black magic here)
     # fw = [1., 1., 1., 1., 1., 1., 1.]
     th = 5 #Keeping place_ids with more than th samples.
 
     #Defining the size of the grid
     size = 10.0
-    x_step = 0.5
-    y_step = 0.5
+    x_step = 0.6
+    y_step = 0.6
 
     x_border_augment = 0.025
     y_border_augment = 0.025
@@ -220,14 +220,14 @@ if __name__ == '__main__':
     clf_knn = KNeighborsClassifier(n_neighbors=26, weights='distance',
                                metric='manhattan', n_jobs = -1)
     clf_bagging_knn = BaggingClassifier(clf_knn, n_jobs=-1, n_estimators=50, random_state=r_state)
-    clf_rf = RandomForestClassifier(n_estimators=200, n_jobs=-1, random_state=r_state)
+    clf_rf = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=r_state)
 
     print('Solving')
 
-    # all, df_train, df_test = test_data(fw)
-    # sc = process_all(clf_knn, df_train, df_test, size, x_step, y_step, x_border_augment, y_border_augment, fw, th
-    #                  , model_name = 'model/p-knn-15.csv', output_model = True)
-    # print(sc)
+    all, df_train, df_test = test_data(fw, name='data/1_24_sample.txt')
+    sc = process_all(clf_knn, df_train, df_test, size, x_step, y_step, x_border_augment, y_border_augment, fw, th
+                     , model_name = 'model/model_1_24_sample/s-knn-06261357.csv', output_model = True)
+    print(sc)
 
 
     # result = []
@@ -245,4 +245,4 @@ if __name__ == '__main__':
     #
     # print sorted(zip(result, ii), key=lambda tuple:tuple[0], reverse=True)
 
-    process_split(clf_knn, 'X-20_all', y_step, y_border_augment, fw, th, model_name = 'model/p-knn-split.csv', output_model = True)
+    # process_split(clf_knn, 'X-20_all', y_step, y_border_augment, fw, th, model_name = 'model/p-knn-split.csv', output_model = True)
