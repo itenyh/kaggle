@@ -108,11 +108,10 @@ def process_all(clf, df_train, df_test, size, x_step, y_step, x_border_augment, 
 
             pred_labels, row_ids = process_one_cell(clf, df_cell_train, df_cell_test, fw, th)
 
-            add_pre_time = time.time()
             for item in zip(row_ids, pred_labels): preds_total[item[0]] = item[1]
 
-            print "x,y %d,%d elapsed time: %.2f seconds add_pre_time: %.2f train:%d test:%d" % \
-                  (i, j, time.time() - start_time_cell, time.time() - add_pre_time, len(df_cell_train), len(df_cell_test))
+            print "x,y %d,%d elapsed time: %.2f seconds train:%d test:%d" % \
+                  (i, j, time.time() - start_time_cell, len(df_cell_train), len(df_cell_test))
 
         print("Row %d/%d elapsed time: %.2f seconds" % (i+1, (int)(size/x_step),(time.time() - start_time_row)))
 
@@ -210,8 +209,8 @@ if __name__ == '__main__':
 
     #Defining the size of the grid
     size = 10.0
-    x_step = 0.6
-    y_step = 0.6
+    x_step = 0.25
+    y_step = 0.25
 
     x_border_augment = 0.025
     y_border_augment = 0.025
