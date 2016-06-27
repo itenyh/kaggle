@@ -18,11 +18,11 @@ pd.options.mode.chained_assignment = None  # default='warn'
 r_state = 0
 rank_left = 15
 
-def score(total_pre):
+def score(total_pre, all_):
 
     total_pre = total_pre[['0_','1_','2_']]
 
-    score = fb_validate4(total_pre, all)
+    score = fb_validate4(total_pre, all_)
 
     return score
 
@@ -195,6 +195,7 @@ def process_split(clf, split_data_file, y_step, y_border_augment, fw, th,
 
     if output_model: preds_total.to_csv(model_name, index=True, header=True, index_label='row_id')
 
+
     # return score(preds_total)
 
 
@@ -209,8 +210,8 @@ if __name__ == '__main__':
 
     #Defining the size of the grid
     size = 10.0
-    x_step = 0.2
-    y_step = 0.2
+    x_step = 0.5
+    y_step = 0.5
 
     x_border_augment = 0.025
     y_border_augment = 0.025
@@ -221,12 +222,12 @@ if __name__ == '__main__':
     clf_bagging_knn = BaggingClassifier(clf_knn, n_jobs=-1, n_estimators=50, random_state=r_state)
     clf_rf = RandomForestClassifier(n_estimators=200, n_jobs=-1, random_state=r_state)
 
-    print('Solving')
-
-    all, df_train, df_test = test_data(fw, name='data/1_24_sample.txt')
-    sc = process_all(clf_rf, df_train, df_test, size, x_step, y_step, x_border_augment, y_border_augment, fw, th
-                     , model_name = 'model/model_1_24_sample/s-rf-06261336.csv', output_model = True)
-    print(sc)
+    # print('Solving')
+    #
+    # all, df_train, df_test = test_data(fw, name='data/1_4_sample.txt')
+    # sc = process_all(clf_knn, df_train, df_test, size, x_step, y_step, x_border_augment, y_border_augment, fw, th
+    #                  , model_name = 'model/model_1_24_sample/s-rf-06261336.csv', output_model = False)
+    # print(sc)
 
 
     # result = []
@@ -244,4 +245,5 @@ if __name__ == '__main__':
     #
     # print sorted(zip(result, ii), key=lambda tuple:tuple[0], reverse=True)
 
-    # process_split(clf_knn, 'X-20_all', y_step, y_border_augment, fw, th, model_name = 'model/p-knn-split.csv', output_model = True)
+
+    process_split(clf_knn, 'X-20_1_4', y_step, y_border_augment, fw, th, model_name = 'model/model_1_4_sample/p-knn-base.csv', output_model = True)

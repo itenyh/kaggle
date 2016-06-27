@@ -119,7 +119,7 @@ def sample_data_ninegrid(input_path, out_path):
 # sample_data_ninegrid('data/train.csv', 'data/ninegrid_xy.txt')
 # print sample_data_xy('data/train.csv', 'data/s_xy.txt', [[(0.0, 0.2), (0.0, 0.2)]])
 
-sample_data('data/train.csv', 'data/1_24_sample.txt', 0.04167)
+sample_data('data/train.csv', 'data/1_4_sample.txt', 0.25)
 exit()
 
 print 'Loading data ...'

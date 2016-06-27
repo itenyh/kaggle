@@ -6,7 +6,7 @@ import pandas as pd
 import os, datetime, time, itertools
 from metrics import fb_validate4
 
-all = pd.read_table('data/1_24_sample.txt', sep = ',', names = ['row_id', 'x', 'y',  'accuracy', 'time', 'place_id'],
+all = pd.read_table('data/1_4_sample.txt', sep = ',', names = ['row_id', 'x', 'y',  'accuracy', 'time', 'place_id'],
                     usecols=['row_id', 'x', 'y', 'accuracy','time', 'place_id'], index_col = 0)
 
 def lr(acc):
@@ -186,7 +186,8 @@ def blend_combine(b_list, b_fi = []):
 # ,'p-knn-06251456.csv#0.63353','p-knn-06251459.csv#0.636322','p-knn-06251504.csv#0.634518','p-knn-06251506.csv#0.648797','p-knn-06251510.csv#0.649216'
 # ,'p-knn-06251513.csv#0.649216','p-knn-06251515.csv#0.649501','p-knn-06251517.csv#0.647681','p-knn-06251519.csv#0.647681']
 
-m_list = ['model_1_24_sample/s-knn-06261242.csv#0.483847', 'model_1_24_sample/s-knn-06261357.csv#0.478413']
+m_list = ['model_1_4_sample/p-knn-base.csv#0.483847']
+
 
 print vlidate_by_model(m_list)
 
