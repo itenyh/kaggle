@@ -17,22 +17,23 @@ def lr(acc):
 
     return np.math.log(deta_t)
 
-def vlidate_by_model_4_alldata(models, weight = None, filename = None):
+def vlidate_by_model_4_alldata(models, filename = None):
 
     start_time = time.time()
 
     indexes = None
     model_list = []
+    weight = []
 
     print 'Loading......'
 
     for m_i, model in enumerate(models):
 
-        df = pd.read_csv('model/' + model, index_col = 0)
+        m, w = model.split('#')
+        df = pd.read_csv('model/' + m, index_col = 0)
+        weight.append(float(w))
         if indexes is None: indexes = df.index
-        if weight is None: weight = [1] * len(indexes)
         model_list.append(df.values)
-
 
     print 'Merging......'
     new_data = []
