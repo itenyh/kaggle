@@ -6,16 +6,18 @@ import pandas as pd
 import os, datetime, time, itertools
 from metrics import fb_validate4
 
-all = pd.read_table('data/ninegrid_xy.txt', sep = ',', names = ['row_id', 'x', 'y',  'accuracy', 'time', 'place_id'],
+all = pd.read_table('data/1_24_sample.txt', sep = ',', names = ['row_id', 'x', 'y',  'accuracy', 'time', 'place_id'],
                     usecols=['row_id', 'x', 'y', 'accuracy','time', 'place_id'], index_col = 0)
 
 def lr(acc):
 
-    err = 1 - acc
+    # err = 1 - acc
+    #
+    # deta_t = np.math.sqrt((1 - err) / err)
+    #
+    # return np.math.log(deta_t)
 
-    deta_t = np.math.sqrt((1 - err) / err)
-
-    return np.math.log(deta_t)
+    return acc
 
 def vlidate_by_model_4_alldata(models, filename = None):
 
@@ -132,6 +134,7 @@ def merge_rows(all, weight):
         for j, item in enumerate(all):
 
             place_id = str(item[i])
+
             if score.has_key(place_id): score[place_id] += ((top_score - i) * lr(weight[j]))
             else: score[place_id] = ((top_score - i) * lr(weight[j]))
 
@@ -183,7 +186,7 @@ def blend_combine(b_list, b_fi = []):
 # ,'p-knn-06251456.csv#0.63353','p-knn-06251459.csv#0.636322','p-knn-06251504.csv#0.634518','p-knn-06251506.csv#0.648797','p-knn-06251510.csv#0.649216'
 # ,'p-knn-06251513.csv#0.649216','p-knn-06251515.csv#0.649501','p-knn-06251517.csv#0.647681','p-knn-06251519.csv#0.647681']
 
-m_list = ['model_1_24_sample/s-knn-06261242.csv#0.6','model_1_24_sample/s-knn-06261357.csv#0.6']
+m_list = ['model_1_24_sample/s-knn-06261242.csv#0.483847', 'model_1_24_sample/s-knn-06261357.csv#0.478413']
 
 print vlidate_by_model(m_list)
 

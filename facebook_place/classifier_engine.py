@@ -110,8 +110,8 @@ def process_all(clf, df_train, df_test, size, x_step, y_step, x_border_augment, 
 
             for item in zip(row_ids, pred_labels): preds_total[item[0]] = item[1]
 
-            print "x,y %d,%d elapsed time: %.2f seconds train:%d test:%d" % \
-                  (i, j, time.time() - start_time_cell, len(df_cell_train), len(df_cell_test))
+            # print "x,y %d,%d elapsed time: %.2f seconds train:%d test:%d" % \
+            #       (i, j, time.time() - start_time_cell, len(df_cell_train), len(df_cell_test))
 
         print("Row %d/%d elapsed time: %.2f seconds" % (i+1, (int)(size/x_step),(time.time() - start_time_row)))
 
@@ -209,8 +209,8 @@ if __name__ == '__main__':
 
     #Defining the size of the grid
     size = 10.0
-    x_step = 0.25
-    y_step = 0.25
+    x_step = 0.5
+    y_step = 0.5
 
     x_border_augment = 0.025
     y_border_augment = 0.025
@@ -225,7 +225,7 @@ if __name__ == '__main__':
 
     all, df_train, df_test = test_data(fw, name='data/1_24_sample.txt')
     sc = process_all(clf_knn, df_train, df_test, size, x_step, y_step, x_border_augment, y_border_augment, fw, th
-                     , model_name = 'model/model_1_24_sample/s-knn-06261357.csv', output_model = True)
+                     , model_name = 'model/model_1_24_sample/s-knn-06270954.csv', output_model = False)
     print(sc)
 
 
