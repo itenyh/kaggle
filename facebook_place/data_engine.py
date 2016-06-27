@@ -55,31 +55,31 @@ def data_engineering(df_train, df_test, fw):
     df_test.drop(['time'], axis=1, inplace=True)
 
     #add data for periodic time that hit the boundary
-    # add_data = df_train[df_train.hour<6]
-    # add_data.hour = add_data.hour + 24 * fw[2]
-    # df_train = df_train.append(add_data)
-    #
-    # add_data = df_train[df_train.hour>98]
-    # add_data.hour = add_data.hour - 24 * fw[2]
-    # df_train = df_train.append(add_data)
+    add_data = df_train[df_train.hour<6]
+    add_data.hour = add_data.hour + 24 * fw[2]
+    df_train = df_train.append(add_data)
+
+    add_data = df_train[df_train.hour>98]
+    add_data.hour = add_data.hour - 24 * fw[2]
+    df_train = df_train.append(add_data)
 
     #add data for periodic week(3) that hit the boundary
-    add_data = df_train[df_train.weekday <= (3 * fw[3])]
-    add_data.weekday = add_data.weekday + 7 * fw[3]
-    df_train = df_train.append(add_data)
-
-    add_data = df_train[df_train.weekday >= (5 * fw[3])]
-    add_data.weekday = add_data.weekday - 7 * fw[3]
-    df_train = df_train.append(add_data)
+    # add_data = df_train[df_train.weekday <= (3 * fw[3])]
+    # add_data.weekday = add_data.weekday + 7 * fw[3]
+    # df_train = df_train.append(add_data)
+    #
+    # add_data = df_train[df_train.weekday >= (5 * fw[3])]
+    # add_data.weekday = add_data.weekday - 7 * fw[3]
+    # df_train = df_train.append(add_data)
 
     #add data for periodic month(2) that hit the boundary
-    add_data = df_train[df_train.month <= (3 * fw[4])]
-    add_data.month = add_data.month + 12 * fw[4]
-    df_train = df_train.append(add_data)
-
-    add_data = df_train[df_train.hour >= (10 * fw[4])]
-    add_data.month = add_data.month - 12 * fw[4]
-    df_train = df_train.append(add_data)
+    # add_data = df_train[df_train.month <= (3 * fw[4])]
+    # add_data.month = add_data.month + 12 * fw[4]
+    # df_train = df_train.append(add_data)
+    #
+    # add_data = df_train[df_train.hour >= (10 * fw[4])]
+    # add_data.month = add_data.month - 12 * fw[4]
+    # df_train = df_train.append(add_data)
 
     return df_train, df_test
 
