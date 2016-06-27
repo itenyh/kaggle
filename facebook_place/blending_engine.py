@@ -86,7 +86,13 @@ def vlidate_by_model(models, filename = None):
 
     new_data = []
 
+    len_index = len(indexes)
+    i_n = 0
     for row_id in indexes:
+
+        i_n += 1
+
+        if i_n % int(len_index / 100) == 0: print '%d/%d'% (i_n, len_index)
 
         all_rows = []
 
@@ -179,7 +185,7 @@ def blend_combine(b_list, b_fi = []):
 
 m_list = ['model_1_24_sample/s-knn-06261242.csv#0.6','model_1_24_sample/s-knn-06261357.csv#0.6']
 
-vlidate_by_model(m_list)
+print vlidate_by_model(m_list)
 
 # m_list = blend_combine(m_list, [])
 # print(len(m_list))
