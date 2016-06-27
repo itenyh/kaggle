@@ -70,7 +70,7 @@ def vlidate_by_model_4_alldata(models, filename = None):
 
 def vlidate_by_model(models, filename = None):
 
-    print 'Now blending : %s' % models
+    # print 'Now blending : %s' % models
 
     start_time = time.time()
 
@@ -84,23 +84,22 @@ def vlidate_by_model(models, filename = None):
         df = pd.read_csv('model/' + m, index_col = 0)
         weight.append(float(w))
         if indexes is None: indexes = df.index
-        model_list.append(df)
+        model_list.append(df.values)
 
     new_data = []
 
     len_index = len(indexes)
     i_n = 0
-    for row_id in indexes:
+    for ii, row_id in enumerate(indexes):
 
-        i_n += 1
-
-        if i_n % int(len_index / 100) == 0: print '%d/%d'% (i_n, len_index)
+        # i_n += 1
+        # if i_n % int(len_index / 100) == 0: print '%d/%d'% (i_n, len_index)
 
         all_rows = []
 
         for model in model_list:
 
-            all_rows.append(model.ix[row_id].values)
+            all_rows.append(model[ii])
 
         new_row = merge_rows(all_rows, weight)
 
@@ -188,21 +187,24 @@ def blend_combine(b_list, b_fi = []):
 
 m_list = ['model_1_4_sample/p-knn-base.csv#0.483847']
 
+# print vlidate_by_model(m_list)
 
-print vlidate_by_model(m_list)
+'''
+m_list = blend_combine(m_list, [])
+b_N = len(m_list)
 
-# m_list = blend_combine(m_list, [])
-# print(len(m_list))
-# scores = []
-#
-# for i, item in enumerate(m_list):
-#
-#     print(i + 1)
-#     s = vlidate_by_model(item)
-#     scores.append((s, item))
-#
-# scores = sorted(scores, key=lambda x:x[0], reverse=True)
-# print(scores)
+scores = []
+print 'Starting ......'
+for i, item in enumerate(m_list):
+
+    s = vlidate_by_model(item)
+    scores.append((s, item))
+
+    print 'Blending  %d/%d Over, Score: %f' % ((i+1), b_N, s)
+
+scores = sorted(scores, key=lambda x:x[0], reverse=True)
+print(scores)
+'''
 
 # print vlidate_by_model(['p-knn-06251144.csv'])
 
