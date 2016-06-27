@@ -246,4 +246,5 @@ if __name__ == '__main__':
     # print sorted(zip(result, ii), key=lambda tuple:tuple[0], reverse=True)
 
 
-    process_split(clf_knn, 'X-20_1_4', y_step, y_border_augment, fw, th, model_name = 'model/model_1_4_sample/p-knn-base.csv', output_model = True)
+    process_split(clf_knn, 'X-20_1_4_g', y_step, y_border_augment, fw, th,
+                  model_name = 'model/model_1_4_sample/s-knn-06271841.csv', output_model = True)
