@@ -210,8 +210,8 @@ if __name__ == '__main__':
 
     #Defining the size of the grid
     size = 10.0
-    x_step = 0.6
-    y_step = 0.6
+    x_step = 0.25
+    y_step = 0.25
 
     x_border_augment = 0.025
     y_border_augment = 0.025
