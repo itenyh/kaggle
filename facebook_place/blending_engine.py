@@ -81,7 +81,7 @@ def vlidate_by_model(models, filename = None):
     for m_i, model in enumerate(models):
 
         m, w = model.split('#')
-        df = pd.read_csv('model/' + m, index_col = 0)
+        df = pd.read_csv('model/model_1_4_sample/' + m, index_col = 0)
         weight.append(float(w))
         if indexes is None: indexes = df.index
         model_list.append(df.values)
@@ -176,7 +176,8 @@ def blend_combine(b_list, b_fi = []):
                     is_bad = True
                     break
 
-            if not is_bad: new_r.append(list(n))
+            # print(list(n))
+            if not is_bad and len(list(n)) > 1 : new_r.append(list(n))
 
     return new_r
 
@@ -185,14 +186,36 @@ def blend_combine(b_list, b_fi = []):
 # ,'p-knn-06251456.csv#0.63353','p-knn-06251459.csv#0.636322','p-knn-06251504.csv#0.634518','p-knn-06251506.csv#0.648797','p-knn-06251510.csv#0.649216'
 # ,'p-knn-06251513.csv#0.649216','p-knn-06251515.csv#0.649501','p-knn-06251517.csv#0.647681','p-knn-06251519.csv#0.647681']
 
-# m_list = ['model_1_4_sample/p-knn-06271514.csv#0.5']
-#
-# print vlidate_by_model(m_list)
+a1 = 0.082698 / 3.0
+a2 = 0.084376 / 3.0
+a3 = 0.085515 / 3.0
 
+
+m_list = ['c-rf-06290241.csv#0.6']
+
+# h-knn-06280809.csv (去掉xyaccuracy) 0.085515
+# h-knn-06280823.csv (再加半个圈的时间) 0.084376
+# h-knn-06280901.csv# (加上所有,半圈投影) 0.0826977580314
+# h-knn-06281131.csv 0.026103 (加上所有,半圈投影,10*10)
+
+# h-knn-06280823.csv#0.084376', 's-knn-1719.csv#0.641612' 0.642632
+# h-knn-06280809.csv#0.085515', 's-knn-1719.csv#0.641612  0.641631
+# h-knn-06280901.csv#0.082698', 's-knn-1719.csv#0.641612  0.643463
+# h-knn-06281131.csv#0.026103', 's-knn-1719.csv#0.641612  0.641611
+
+# h-knn-06280901.csv + h + m + w 0.644418
+
+
+#时间模型不能bleading,否则影响太大
+
+
+print vlidate_by_model(m_list)
+# vlidate_by_model_4_alldata(m_list, 'submit/sub-knn-06281530.csv')
 '''
-m_list = blend_combine(m_list, [])
+m_list = ['s-knn-06271826.csv#0.6402431' ,'s-knn-06271830.csv#0.640175' , 's-knn-06271835.csv#0.637399']
+m_list = blend_combine(m_list)
 b_N = len(m_list)
-
+print(b_N)
 scores = []
 print 'Starting ......'
 for i, item in enumerate(m_list):
@@ -212,6 +235,9 @@ print(scores)
 m_list = ['p-knn-06251138.csv#0.633387','p-knn-06251143.csv#0.632588'
 ,'p-knn-06251503.csv#0.634376','p-knn-06251453.csv#0.633616','p-knn-06251456.csv#0.63353','p-knn-06251504.csv#0.634518','p-knn-06251506.csv#0.648797','p-knn-06251510.csv#0.649216'
 ,'p-knn-06251515.csv#0.649501','p-knn-06251519.csv#0.647681']
+m_list = ['s-knn-1719.csv#0.641612', 's-knn-06271728.csv#0.642232', 's-knn-06271806.csv#0.639685',
+'s-knn-06271815.csv#0.639756', 's-knn-06271826.csv#0.6402431'
+    ,'s-knn-06271830.csv#0.640175' ,'s-knn-06271835.csv#0.637399' ,'s-knn-06271841.csv#0.637762']
 '''
 
 # a = pd.DataFrame(np.random.rand(3,2), columns=['0_', '1_'], index=['a', 'b', 'c'])

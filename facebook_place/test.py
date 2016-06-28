@@ -8,8 +8,12 @@ import metrics as mt
 import os
 
 import sklearn.preprocessing as pp
-import xgboost as xgb
+# import xgboost as xgb
 import itertools
+
+import warnings
+warnings.filterwarnings("ignore")
+pd.options.mode.chained_assignment = None  # default='warn'
 
 def max_nonzero_num(t):
 
@@ -146,8 +150,27 @@ def blend_combine(b_list, b_fi):
     return new_r
 
 
-a = ['a', 'b', 'c', 'd']
+# a = ['a', 'b', 'c', 'd']
+#
+# fi = [['a', 'b'], ['a', 'c']]
+#
+# blend_combine(a, fi)
 
-fi = [['a', 'b'], ['a', 'c']]
+dic = {'a' : [1 , 2 , 3]}
+df = pd.DataFrame(dic)
 
-blend_combine(a, fi)
+add_data1 = df[df.a < 2]
+add_data2 = df[df.a > 2]
+
+add_data1.a += 3
+df = df.append(add_data1)
+print(add_data1)
+
+add_data2.a -= 3
+print(add_data2)
+df = df.append(add_data2)
+
+print '========='
+
+print(df)
+

@@ -16,7 +16,6 @@ def test_data(fw, name = 'data/ninegrid_xy.txt'):
     df_train = all.iloc[int(0.2 * N):]
     df_test = all.iloc[:int(0.2 * N)]
 
-    df_train, df_test = data_engineering(df_train, df_test, fw)
     #
     # df_train = pd.read_csv('data/train.csv',
     #                        usecols=['row_id','x','y','time','place_id','accuracy'],
@@ -55,31 +54,30 @@ def data_engineering(df_train, df_test, fw):
     df_test.drop(['time'], axis=1, inplace=True)
 
     #add data for periodic time that hit the boundary
-    add_data = df_train[df_train.hour<6]
+    add_data = df_train[df_train.hour < 6]
     add_data.hour = add_data.hour + 24 * fw[2]
     df_train = df_train.append(add_data)
-
     add_data = df_train[df_train.hour>98]
     add_data.hour = add_data.hour - 24 * fw[2]
     df_train = df_train.append(add_data)
 
-    #add data for periodic week(3) that hit the boundary
-    add_data = df_train[df_train.weekday <= (1 * fw[3])]
-    add_data.weekday = add_data.weekday + 7 * fw[3]
-    df_train = df_train.append(add_data)
-
-    add_data = df_train[df_train.weekday >= (7 * fw[3])]
-    add_data.weekday = add_data.weekday - 7 * fw[3]
-    df_train = df_train.append(add_data)
-
-    #add data for periodic month(2) that hit the boundary
-    add_data = df_train[df_train.month <= (1 * fw[4])]
-    add_data.month = add_data.month + 12 * fw[4]
-    df_train = df_train.append(add_data)
-
-    add_data = df_train[df_train.month >= (12 * fw[4])]
-    add_data.month = add_data.month - 12 * fw[4]
-    df_train = df_train.append(add_data)
+    # #add data for periodic week(3) that hit the boundary
+    # add_data = df_train[df_train.weekday <= (1 * fw[3])]
+    # add_data.weekday = add_data.weekday + 7 * fw[3]
+    # df_train = df_train.append(add_data)
+    #
+    # add_data = df_train[df_train.weekday >= (7 * fw[3])]
+    # add_data.weekday = add_data.weekday - 7 * fw[3]
+    # df_train = df_train.append(add_data)
+    #
+    # #add data for periodic month(2) that hit the boundary
+    # add_data = df_train[df_train.month <= (1 * fw[4])]
+    # add_data.month = add_data.month + 12 * fw[4]
+    # df_train = df_train.append(add_data)
+    #
+    # add_data = df_train[df_train.month >= (12 * fw[4])]
+    # add_data.month = add_data.month - 12 * fw[4]
+    # df_train = df_train.append(add_data)
 
     #crazy time config
     # add_data = df_train[df_train.hour <= (12 * fw[2])]
@@ -115,6 +113,44 @@ def data_engineering(df_train, df_test, fw):
     # add_data = df_train[df_train.hour >= (0 * fw[2])]
     # add_data.hour = add_data.hour - 24 * fw[2]
     # df_train = df_train.append(add_data)
+
+    #new_thinking
+    # #add data for periodic month(2) that hit the boundary
+    # add_data1 = df_train[df_train.month <= (6 * fw[4])]
+    # add_data2 = df_train[df_train.month >= (7 * fw[4])]
+    # add_data1.month += 12 * fw[4]
+    # df_train = df_train.append(add_data1)
+    # add_data2.month -= 12 * fw[4]
+    # df_train = df_train.append(add_data2)
+    #
+    # add_data1 = df_train[df_train.hour <= (12.5 * fw[2])]
+    # add_data2 = df_train[df_train.hour > (12.5 * fw[2])]
+    # add_data1.hour += 24 * fw[2]
+    # df_train = df_train.append(add_data1)
+    # add_data2.hour -= 24 * fw[2]
+    # df_train = df_train.append(add_data2)
+    #
+    # add_data1 = df_train[df_train.weekday <= (3 * fw[3])]
+    # add_data2 = df_train[df_train.weekday >= (5 * fw[3])]
+    # add_data1.weekday += 7 * fw[3]
+    # df_train = df_train.append(add_data1)
+    # add_data2.weekday -= 7 * fw[3]
+    # df_train = df_train.append(add_data2)
+
+    # df_train['x'] = 0
+    # df_train['y'] = 0
+    # df_train['accuracy'] = 0
+    #
+    # df_test['x'] = 0
+    # df_test['y'] = 0
+    # df_test['accuracy'] = 0
+
+    # df_train.drop(['x'], axis=1, inplace=True)
+    # df_train.drop(['y'], axis=1, inplace=True)
+    # df_train.drop(['accuracy'], axis=1, inplace=True)
+    # df_test.drop(['accuracy'], axis=1, inplace=True)
+    # df_test.drop(['x'], axis=1, inplace=True)
+    # df_test.drop(['y'], axis=1, inplace=True)
 
     return df_train, df_test
 
@@ -168,20 +204,20 @@ def do():
 
     # #Defining the size of the grid
     size = 10.0
-    x_step = 0.5
-    y_step = 0.5
+    x_step = 0.2
+    y_step = 0.2
 
     x_border_augment = 0.025
     y_border_augment = 0.025
     #
-    # print('Loading data ...')
+    print('Loading data ...')
     # df_train = pd.read_csv('data/train.csv',
     #                        usecols=['row_id','x','y','time','place_id','accuracy'],
     #                        index_col = 0)
     # df_test = pd.read_csv('data/test.csv',
     #                       usecols=['row_id','x','y','time','accuracy'],
     #                       index_col = 0)
-    # #
+
     all = pd.read_table('data/1_4_xy.txt', sep = ',', names = ['row_id', 'x', 'y', 'accuracy', 'time', 'place_id'],
                         usecols=['row_id', 'x', 'y', 'accuracy','time', 'place_id'], index_col = 0)
 
@@ -193,4 +229,4 @@ def do():
     cell_split(df_train, df_test, size, x_step, x_border_augment, '1_4_g')
 
 
-# do()
+do()
