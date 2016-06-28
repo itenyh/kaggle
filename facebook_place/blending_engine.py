@@ -6,8 +6,8 @@ import pandas as pd
 import os, datetime, time, itertools
 from metrics import fb_validate4
 
-all = pd.read_table('data/1_4_sample.txt', sep = ',', names = ['row_id', 'x', 'y',  'accuracy', 'time', 'place_id'],
-                    usecols=['row_id', 'x', 'y', 'accuracy','time', 'place_id'], index_col = 0)
+# all = pd.read_table('data/1_4_sample.txt', sep = ',', names = ['row_id', 'x', 'y',  'accuracy', 'time', 'place_id'],
+#                     usecols=['row_id', 'x', 'y', 'accuracy','time', 'place_id'], index_col = 0)
 
 def lr(acc):
 
@@ -92,8 +92,8 @@ def vlidate_by_model(models, filename = None):
     i_n = 0
     for ii, row_id in enumerate(indexes):
 
-        # i_n += 1
-        # if i_n % int(len_index / 100) == 0: print '%d/%d'% (i_n, len_index)
+        i_n += 1
+        if i_n % int(len_index / 100) == 0: print '%d/%d'% (i_n, len_index)
 
         all_rows = []
 
@@ -176,7 +176,7 @@ def blend_combine(b_list, b_fi = []):
                     is_bad = True
                     break
 
-            if not is_bad: new_r.append(list(n))
+            if not is_bad and len(list(n)) > 1: new_r.append(list(n))
 
     return new_r
 
@@ -185,14 +185,15 @@ def blend_combine(b_list, b_fi = []):
 # ,'p-knn-06251456.csv#0.63353','p-knn-06251459.csv#0.636322','p-knn-06251504.csv#0.634518','p-knn-06251506.csv#0.648797','p-knn-06251510.csv#0.649216'
 # ,'p-knn-06251513.csv#0.649216','p-knn-06251515.csv#0.649501','p-knn-06251517.csv#0.647681','p-knn-06251519.csv#0.647681']
 
-m_list = ['model_1_4_sample/p-knn-base.csv#0.483847']
-
+m_list = ['1','2','3','4','5','6']
+#
 # print vlidate_by_model(m_list)
 
-'''
+
 m_list = blend_combine(m_list, [])
 b_N = len(m_list)
-
+print(b_N)
+exit()
 scores = []
 print 'Starting ......'
 for i, item in enumerate(m_list):
@@ -204,7 +205,7 @@ for i, item in enumerate(m_list):
 
 scores = sorted(scores, key=lambda x:x[0], reverse=True)
 print(scores)
-'''
+
 
 # print vlidate_by_model(['p-knn-06251144.csv'])
 
