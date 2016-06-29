@@ -78,6 +78,7 @@ def process_all(clf, df_train, df_test, size, x_step, y_step, x_border_augment, 
 
     preds_total = {}
 
+    print 'Processing ... ... '
     for i in range((int)(size/x_step)):
         start_time_row = time.time()
         x_min = x_step * i
@@ -106,6 +107,9 @@ def process_all(clf, df_train, df_test, size, x_step, y_step, x_border_augment, 
             if(len(df_cell_train) == 0 or len(df_cell_test) == 0):
                 continue
 
+            df_cell_train, df_cell_test = data_engineering(df_cell_train, df_cell_test, fw)
+
+            print 'Training ... ... '
             pred_labels, row_ids = process_one_cell(clf, df_cell_train, df_cell_test, fw, th)
 
             for item in zip(row_ids, pred_labels): preds_total[item[0]] = item[1]
@@ -220,33 +224,17 @@ if __name__ == '__main__':
     clf_knn = KNeighborsClassifier(n_neighbors=26, weights='distance',
                                metric='manhattan', n_jobs = -1)
     clf_bagging_knn = BaggingClassifier(clf_knn, n_jobs=-1, n_estimators=50, random_state=r_state)
-    clf_rf = RandomForestClassifier(n_estimators=350, n_jobs=-1, random_state=r_state)
-    # 250-0.64972234088
-    # 300-0.650157419
-    # 350-
+
+    clf_rf = RandomForestClassifier(n_estimators=250 , n_jobs=-1, random_state=r_state)
 
     # print('Solving')
     #
-    all, df_train, df_test = test_data(fw)
-    sc = process_all(clf_rf, df_train, df_test, size, x_step, y_step, x_border_augment, y_border_augment, fw, th
-                     , model_name = 'model/model_1_24_sample/s-rf-06261336.csv', output_model = False)
-    print(sc)
+    # all, df_train, df_test = test_data(fw, name='data/1_4_xy.txt')
+    # sc = process_all(clf_knn, df_train, df_test, size, x_step, y_step, x_border_augment, y_border_augment, fw, th
+    #                  , model_name = 'model/model_1_4_sample/h-knn-06281107.csv', output_model = True)
+    # print(sc)
 
 
-    # result = []
-    # ii = range(1, 21)
-    # for i in ii:
-    #
-    #     print '================= %d =================' % i
-    #
-    #     fw_plus = fw + [float(i)]
-    #
-    #     all, df_train, df_test = test_data(fw_plus)
-    #     sc = process_all(clf_knn, df_train, df_test, size, x_step, y_step, x_border_augment, y_border_augment, fw_plus, th
-    #                  , model_name = 'model/p-rf-1435.csv', output_model = False)
-    #     result.append(sc)
-    #
-    # print sorted(zip(result, ii), key=lambda tuple:tuple[0], reverse=True)
 
-
-    # process_split(clf_knn, 'X-20_1_4', y_step, y_border_augment, fw, th, model_name = 'model/model_1_4_sample/p-knn-base.csv', output_model = True)
+    process_split(clf_bagging_knn, 'X-20_1_4_g', y_step, y_border_augment, fw, th,
+                  model_name = 'model/model_1_4_sample/c-bagging-06290608.csv', output_model = True)

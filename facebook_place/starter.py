@@ -82,10 +82,9 @@ def sample_data_xy(input_path, out_path, boundlist):
 
 def sample_data_uniformity():
 
-    step = 0.2
+    bl = [[(0,5), (5, 10)]]
+    sample_data_xy('data/train.csv', 'data/1_4_xy.txt', bl)
 
-
-    pass
 
 def sample_data_ninegrid(input_path, out_path):
 
@@ -119,7 +118,8 @@ def sample_data_ninegrid(input_path, out_path):
 # sample_data_ninegrid('data/train.csv', 'data/ninegrid_xy.txt')
 # print sample_data_xy('data/train.csv', 'data/s_xy.txt', [[(0.0, 0.2), (0.0, 0.2)]])
 
-sample_data('data/train.csv', 'data/1_4_sample.txt', 0.25)
+# sample_data('data/train.csv', 'data/1_4_sample.txt', 0.25)
+sample_data_uniformity()
 exit()
 
 print 'Loading data ...'
